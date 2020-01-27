@@ -1,0 +1,34 @@
+{
+    "name": "franksacco/nano-framework",
+    "description": "A simple, fast and secure PHP framework",
+    "autoload": {
+        "psr-4": {
+            "Nano\\": "src/Nano/"
+        }
+    },
+    "require": {
+        "php": ">=7.1",
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "league/container": "^3.3",
+        "nikic/fast-route": "^1.3",
+        "psr/container": "^1.0",
+        "psr/http-server-middleware": "^1.0",
+        "psr/http-factory": "^1.0",
+        "psr/http-message": "^1.0",
+        "psr/http-server-handler": "^1.0",
+        "psr/log": "^1.1",
+        "twig/twig": "^2.0",
+        "rakit/validation": "^1.2",
+        "laminas/laminas-diactoros": "^2.2"
+    },
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Francesco Saccani",
+            "email": "saccani.francesco@gmail.com",
+            "homepage": "https://github.com/franksacco",
+            "role": "Developer"
+        }
+    ]
+}
