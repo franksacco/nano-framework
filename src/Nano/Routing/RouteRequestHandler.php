@@ -61,10 +61,12 @@ class RouteRequestHandler implements RequestHandlerInterface
         if (! isset($this->middlewares[$this->index])) {
             return $this->handler->handle($request);
         }
+
         $middleware = $this->middlewares[$this->index];
         if (! $middleware instanceof MiddlewareInterface) {
             throw new InvalidMiddlewareException('Invalid middleware');
         }
+
         $this->index++;
         return $middleware->process($request, $this);
     }

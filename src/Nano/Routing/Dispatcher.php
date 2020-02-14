@@ -71,6 +71,7 @@ class Dispatcher
         if (! is_callable($handler)) {
             throw new InvalidRequestHandlerException('Request handler must be callable');
         }
+
         $result = $this->callHandler($handler, is_array($params) ? $params : []);
 
         return $this->createResponse($result);

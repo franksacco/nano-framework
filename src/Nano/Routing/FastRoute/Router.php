@@ -49,12 +49,17 @@ class Router extends RouteCollector
     /**
      * @var array
      */
-    private $data;
+    private $data = [];
 
     /**
      * @var array
      */
-    private $reverseData;
+    private $reverseData = [];
+
+    /**
+     * @var bool
+     */
+    private $dataCalculated = false;
 
     /**
      * @inheritDoc
@@ -113,6 +118,7 @@ class Router extends RouteCollector
         }
 
         $this->data = $this->dataGenerator->getData();
+        $this->dataCalculated = true;
     }
 
     /**
@@ -120,7 +126,7 @@ class Router extends RouteCollector
      */
     public function getData(): array
     {
-        if ($this->data === null || $this->reverseData === null) {
+        if (! $this->dataCalculated) {
             $this->calculateData();
         }
 
@@ -137,7 +143,7 @@ class Router extends RouteCollector
      */
     public function getReverseData(): array
     {
-        if ($this->data === null || $this->reverseData === null) {
+        if (! $this->dataCalculated) {
             $this->calculateData();
         }
 
