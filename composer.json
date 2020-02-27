@@ -1,6 +1,9 @@
 {
     "name": "franksacco/nano-framework",
     "description": "A simple, fast and secure PHP framework",
+    "keywords": ["framework", "middleware", "orm", "router", "session"],
+    "homepage": "https://github.com/franksacco/nano-framework",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Nano\\": "src/Nano/"
@@ -22,7 +25,6 @@
         "rakit/validation": "^1.2",
         "laminas/laminas-diactoros": "^2.2"
     },
-    "license": "proprietary",
     "authors": [
         {
             "name": "Francesco Saccani",
