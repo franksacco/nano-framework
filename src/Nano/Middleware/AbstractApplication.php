@@ -10,13 +10,11 @@
 
 declare(strict_types=1);
 
-namespace Nano\Application;
+namespace Nano\Middleware;
 
 use Laminas\Diactoros\ServerRequestFactory;
 use Nano\Container\Container;
 use Nano\Container\InvalidContainerException;
-use Nano\Middleware\MiddlewareQueue;
-use Nano\Middleware\Runner;
 use Nano\Routing\Dispatcher;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -27,7 +25,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * Abstract application class.
  *
- * @package Nano\Application
+ * @package Nano\Middleware
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
  */
 abstract class AbstractApplication implements MiddlewareInterface
@@ -80,9 +78,14 @@ abstract class AbstractApplication implements MiddlewareInterface
     protected function onBoot() {}
 
     /**
-     * Setup middleware queue to process a request and create a response.
+     * Setup the middlewares queue of the application.
      *
-     * @param MiddlewareQueue $middleware The middleware queue.
+     * This method must be overwritten in order to setup the middlewares queue
+     * used to process the server request and create the response.
+     * Note that the order in which the middlewares are added defines the
+     * order in which they are executed.
+     *
+     * @param MiddlewareQueue $middleware The middlewares queue.
      */
     abstract protected function middleware(MiddlewareQueue $middleware);
 
