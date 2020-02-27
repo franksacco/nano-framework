@@ -18,16 +18,16 @@ use Nano\Model\Exception\InvalidValueException;
 use Nano\Model\Exception\ModelExecutionException;
 
 /**
- * Helper class for count a group of entities that respect particular conditions.
+ * Helper class for count entities that respect particular conditions.
  *
  * @package Nano\Model
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
  */
 class CountBuilder extends QueryBuilder
 {
-    use FilterTrait;
-
     private const COUNT_COLUMN_ALIAS = 'count';
+
+    use FilterTrait;
 
     /**
      * @inheritDoc

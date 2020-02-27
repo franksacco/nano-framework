@@ -72,14 +72,14 @@ abstract class Entity
     public const TYPE_TIME = 'time';
 
     /**
-     * The table that refers to this entity.
+     * The table in the database that refers to this entity.
      *
      * @var string
      */
     public static $table = '';
 
     /**
-     * The primary key column name.
+     * The primary key column name; default: `'id'`.
      *
      * Only one primary key is supported.
      * Example of SQL definition:
@@ -90,18 +90,18 @@ abstract class Entity
     public static $primaryKey = 'id';
 
     /**
-     * The column list definition.
+     * The column list definition; default: `[]`.
      *
-     * Each item of the list MUST be in the form `column` => `type` where:
-     *  - `column` is the column name composed only by alphanumeric or
+     * Each item of the list MUST be in the form `$column => $type` where:
+     *  - `$column` is the column name composed only by alphanumeric or
      *   underscore characters;
-     *  - `type` is the data type using the Entity::TYPE_* constants.
+     *  - `$type` is the data type using the `Entity::TYPE_*` constants.
      *
      * In this list MUST NOT be inserted:
-     *  - primary key column;
-     *  - relation columns, used as reference to an another entity;
-     *  - `created` and `updated` datetime columns, used for entity history;
-     *  - `deleted` datetime column, used for soft deletion.
+     *  - primary key column,
+     *  - relation columns, used as reference to an another entity,
+     *  - `'created'` and `'updated'` datetime columns, used for entity history,
+     *  - `'deleted'` datetime column, used for soft deletion.
      *
      * Example:
      * <code>
@@ -117,26 +117,26 @@ abstract class Entity
     public static $columns = [];
 
     /**
-     * The relations definition.
+     * The relations definition; default: `[]`.
      *
      * Every item of this array represent a relation between current entity and
      * a specified binding entity.
      * Each relation SHOULD be identified uniquely by its index.
      *
      * A relation is represented by an array with the following items:
-     *  - 'name' is the name of the property associated to this relation;
-     *  - 'type' is the type if the relation using the Relation::ONE_TO_ONE,
-     *    Relation::ONE_TO_MANY or Relation::MANY_TO_MANY constants;
-     *  - 'entity' is the class name of the binding entity;
-     *  - 'foreignKey' [optional] is the column name if the foreign key, by
+     *  - `name` is the name of the property associated to this relation;
+     *  - `type` is the type if the relation using the `Relation::ONE_TO_ONE`,
+     *   `Relation::ONE_TO_MANY` or `Relation::MANY_TO_MANY` constants;
+     *  - `entity` is the class name of the binding entity;
+     *  - `foreignKey` [optional] is the column name if the foreign key, by
      *   default, is the value of `name` option;
-     *  - 'bindingKey' [optional] is the column name of the binding key,
-     *   default is "id";
-     *  - 'junctionTable' [required for ManyToMany relations] is the name of
+     *  - `bindingKey` [optional] is the column name of the binding key,
+     *   default is `'id'`;
+     *  - `junctionTable` [required for ManyToMany relations] is the name of
      *   the junction table.
-     *  - 'loading' [optional] is the type of loading using Relation::EAGER or
-     *   Relation::LAZY constants; default is Relation::EAGER for OneToOne
-     *   relations, Relation::LAZY otherwise;
+     *  - `loading` [optional] is the type of loading using `Relation::EAGER`
+     *   or `Relation::LAZY` constants; default is `Relation::EAGER` for
+     *   OneToOne relations, `Relation::LAZY` otherwise.
      *
      * In OneToMany relations, `bindingKey` is referred to a column in the
      * external table while `foreignKey` is referred to the table associated
@@ -165,10 +165,10 @@ abstract class Entity
     public static $relations = [];
 
     /**
-     * Enable datetime functionality.
+     * Enable datetime functionality; default: `true`.
      *
      * For this feature to work, the `updated` and `created` columns of the
-     * DATETIME type must be defined in the entity table.
+     * `DATETIME` type must be defined in the entity table.
      *
      * Example of SQL definition:
      * <code>
@@ -181,10 +181,10 @@ abstract class Entity
     public static $datetime = true;
 
     /**
-     * Enable soft deletion functionality.
+     * Enable soft deletion functionality; default: `true`.
      *
-     * For this feature to work, the `deleted` column of the DATETIME type must
-     * be defined in the entity table.
+     * For this feature to work, the `deleted` column of the `DATETIME` type
+     * must be defined in the entity table.
      *
      * Example of SQL definition:
      * <code>deleted DATETIME DEFAULT NULL</code>
@@ -194,7 +194,7 @@ abstract class Entity
     public static $softDeletion = true;
 
     /**
-     * Disable automatic setters and entity saving.
+     * Disable automatic setters and entity saving; default: `false`.
      *
      * @var bool
      */
@@ -359,6 +359,30 @@ abstract class Entity
     }
 
     /**
+     * This method can be overwritten in order to execute
+     * some code before the entity creation.
+     */
+    protected function beforeCreation() {}
+
+    /**
+     * This method can be overwritten in order to execute
+     * some code after the entity creation.
+     */
+    protected function afterCreation() {}
+
+    /**
+     * This method can be overwritten in order to execute
+     * some code before the entity update.
+     */
+    protected function beforeUpdate() {}
+
+    /**
+     * This method can be overwritten in order to execute
+     * some code after the entity update.
+     */
+    protected function afterUpdate() {}
+
+    /**
      * Update or insert the entity in database.
      *
      * @throws ModelExecutionException if an error occurs during the execution
@@ -377,6 +401,10 @@ abstract class Entity
             return;
         }
 
+        $isNew ?
+            $this->beforeCreation() :
+            $this->beforeUpdate();
+
         $query = $isNew ? $saver->createInsertQuery()
             : $saver->createUpdateQuery($this->id);
         $saver->execute($query);
@@ -389,17 +417,28 @@ abstract class Entity
 
         $this->data        = array_merge($this->data, $this->updatedData);
         $this->updatedData = [];
+
+        $isNew ?
+            $this->afterCreation() :
+            $this->afterUpdate();
     }
 
     /**
-     * This method is called before deletion.
+     * This method can be overwritten in order to execute
+     * some code before the entity deletion.
      */
     protected function beforeDeletion() {}
 
     /**
+     * This method can be overwritten in order to execute
+     * some code after the entity deletion.
+     */
+    protected function afterDeletion() {}
+
+    /**
      * Delete the entity.
      *
-     * @param bool $hardDelete [optional] Force hard deletion. Default: FALSE.
+     * @param bool $hardDelete [optional] Force hard deletion; default: FALSE.
      *
      * @throws ModelExecutionException if this entity is not persisted in database.
      * @throws ModelExecutionException if an error occur during query execution.
@@ -438,20 +477,31 @@ abstract class Entity
     }
 
     /**
-     * This method is called after deletion.
+     * This method can be overwritten in order to execute
+     * some code before the entity restoration.
      */
-    protected function afterDeletion() {}
+    protected function beforeRestore() {}
+
+    /**
+     * This method can be overwritten in order to execute
+     * some code after the entity restoration.
+     */
+    protected function afterRestore() {}
 
     /**
      * Restore the entity from soft deletion.
      *
+     * @throws ModelExecutionException if this entity is not soft deleted.
      * @throws ModelExecutionException if an error occur during query execution.
      */
     public function restore()
     {
         if (!$this->isDeleted()) {
-            return;
+            throw new ModelExecutionException('You cannot restore a non-deleted entity');
         }
+
+        $this->beforeRestore();
+
         try {
             $query = (new Update($this->getMetadata()->getTable()))
                 ->addValue(EntityMetadata::COLUMN_DELETED, null, Types::NULL)
@@ -465,6 +515,8 @@ abstract class Entity
                 $exception
             );
         }
+
+        $this->afterRestore();
     }
 
     /**
@@ -472,16 +524,16 @@ abstract class Entity
      *
      * Note that this method does not return-by-reference, so the value
      * provided is a copy of the actual value. In case of an array, the
-     * operation <code>$entity->array[] = $new_item;</code> produces a warning
+     * operation `$entity->array[] = $new_item;` produces a warning
      * and doesn't work. You should retrieve the array, modify it and then
      * re-assign the value to the property:
-     * <code>
+     * ```
      * $array = $entity->array;
      * $array[] = $new_item;
      * $entity->array = $array;
-     * </code>
+     * ```
      *
-     * @param string $name The property name.
+     * @param string $name The name of the property.
      * @return mixed Returns the value of the property.
      *
      * @throws NotDefinedPropertyException if the property is not defined or is not set.
@@ -507,10 +559,10 @@ abstract class Entity
     }
 
     /**
-     * Set the value for an entity property.
+     * Set the value of an entity property.
      *
-     * @param string $name The property name.
-     * @param mixed $value The property value.
+     * @param string $name The name of the property.
+     * @param mixed $value The new value of the property.
      *
      * @throws NotDefinedPropertyException if the property is not defined.
      * @throws InvalidValueException if value is invalid or entity is read-only.
@@ -531,7 +583,7 @@ abstract class Entity
     /**
      * Determine if an entity property is set and is not NULL.
      *
-     * @param string $name The property name.
+     * @param string $name The name of the property.
      * @return bool Returns TRUE if the property is set and is not NULL, FALSE otherwise.
      */
     public function __isset(string $name): bool

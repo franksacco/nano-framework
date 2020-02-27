@@ -137,6 +137,7 @@ class ErrorHandlerMiddleware implements MiddlewareInterface
         } else {
             $type = 'UNKNOWN';
         }
+
         $context = [
             'type'     => $type,
             'level'    => $level,

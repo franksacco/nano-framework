@@ -16,6 +16,7 @@ use League\Container\Container as LeagueContainer;
 use League\Container\ReflectionContainer;
 use Nano\Config\Configuration;
 use Nano\Config\ConfigurationInterface;
+use Nano\Middleware\AbstractApplication;
 
 /**
  * Dependency injection container.

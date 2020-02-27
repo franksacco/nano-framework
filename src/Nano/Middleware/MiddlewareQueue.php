@@ -85,6 +85,7 @@ class MiddlewareQueue implements Countable
                 is_object($middleware) ? get_class($middleware) : gettype($middleware)
             ));
         }
+
         $this->queue[] = $middleware;
         return $this;
     }
@@ -93,8 +94,8 @@ class MiddlewareQueue implements Countable
      * Get a middleware instance at the given index of the queue.
      *
      * @param int $index The middleware index.
-     * @return MiddlewareInterface|null
-     *     Returns middleware instance if index exists, NULL otherwise.
+     * @return MiddlewareInterface|null Returns middleware instance if index
+     *   exists, NULL otherwise.
      */
     public function get(int $index): ?MiddlewareInterface
     {

@@ -33,7 +33,8 @@ class SelectAllBuilder extends QueryBuilder
      *
      * @param string $column The name of the column. The string can contains
      *   only alphanumeric or underscore characters. In addition, it is
-     *   possible to prepend a table name/alias adding a dot between.
+     *   possible to prepend a table name or alias to the column adding a dot
+     *   between them.
      * @param string $order [optional] The sort order using Query::SORT_*
      *   constants; default: Query::SORT_ASC.
      * @return static Returns self reference for method chaining.
@@ -44,6 +45,7 @@ class SelectAllBuilder extends QueryBuilder
     {
         try {
             $this->query->orderBy($column, $order);
+
         } catch (InvalidArgumentException $exception) {
             throw new InvalidValueException(
                 $exception->getMessage(),
@@ -61,7 +63,7 @@ class SelectAllBuilder extends QueryBuilder
      * `$offset = 0` means no offset.
      *
      * @param int $limit The limit value.
-     * @param int $offset [optional] The offset value. Default 0.
+     * @param int $offset [optional] The offset value; default: 0.
      * @return static Returns self reference for method chaining.
      */
     public function limit(int $limit, int $offset = 0): self
@@ -73,7 +75,7 @@ class SelectAllBuilder extends QueryBuilder
     /**
      * Execute the query and return the list of entities.
      *
-     * @return Entity[] Return the list of searched entities.
+     * @return Entity[] Returns the list of searched entities.
      *
      * @throws ModelExecutionException if an error occur during query execution.
      */
