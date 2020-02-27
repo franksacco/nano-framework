@@ -142,7 +142,7 @@ class FlashHelper extends AbstractHelper
      *
      * @param string $type [optional] If set, is used to filter the type of message.
      * @return array|null Returns the first message inserted in the form
-     *     ['type' => $type, 'message' => $message] if exists, NULL otherwise.
+     *     ['type' => $type, 'message' => $message] if exists, `null` otherwise.
      */
     public function getOne(string $type = null): ?array
     {
@@ -184,7 +184,7 @@ class FlashHelper extends AbstractHelper
      *
      * @param string $type [optional] If set, is used to filter the type of message.
      * @return array|null Returns the first message inserted in the form
-     *     ['type' => $type, 'message' => $message] if exists, NULL otherwise.
+     *     ['type' => $type, 'message' => $message] if exists, `null` otherwise.
      */
     public function consumeOne(string $type = null): ?array
     {

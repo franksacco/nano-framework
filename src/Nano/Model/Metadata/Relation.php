@@ -178,7 +178,7 @@ class Relation
      * Get reverse relation for a OneToMany relation.
      *
      * @param string $className The class name of the entity that owns the OneToMany relation.
-     * @return Relation|null Return the reverse relation, or NULL if it is not defined.
+     * @return Relation|null Return the reverse relation, or `null` if it is not defined.
      */
     public function getReverseRelation(string $className): ?Relation
     {

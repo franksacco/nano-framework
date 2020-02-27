@@ -56,7 +56,7 @@ use SessionHandlerInterface;
  *   is not given, by default {@see FileSessionHandler} is used instead.<br>
  *   Note that the session handler must not extend {@see SessionHandler}
  *   class because this class need native session engine to work.
- *  - `log`: enable verbose logging for debug; default: FALSE.
+ *  - `log`: enable verbose logging for debug; default: `false`.
  *
  * @package Nano\Session
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
@@ -190,7 +190,7 @@ class NanoSession extends AbstractSession
      * Checks whether the session is initialized.
      *
      * @param string $sessionId The session ID to validate.
-     * @return bool Returns TRUE if the session ID is valid, FALSE otherwise.
+     * @return bool Returns `true` if the session ID is valid, `false` otherwise.
      */
     private function validateId(string $sessionId): bool
     {

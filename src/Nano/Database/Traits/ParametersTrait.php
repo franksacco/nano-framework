@@ -41,7 +41,7 @@ trait ParametersTrait
      *
      * @param mixed $value The parameter value.
      * @param int|null $type [optional] The data type for the parameter using
-     *   the Types::* constants; if NULL, the type is evaluated from the value.
+     *   the Types::* constants; if `null`, the type is evaluated from the value.
      * @return string Returns the parameter name.
      */
     protected function setParameter($value, ?int $type = null): string

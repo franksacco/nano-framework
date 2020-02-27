@@ -34,7 +34,8 @@ interface RoleInterface
      * its parent roles.
      *
      * @param string $permission The name of the permission.
-     * @return bool Returns TRUE if the permission is granted, FALSE otherwise.
+     * @return bool Returns `true` if the permission is granted, `false`
+     *   otherwise.
      */
     public function hasPermission(string $permission): bool;
 

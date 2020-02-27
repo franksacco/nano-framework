@@ -115,7 +115,7 @@ abstract class AbstractController
     /**
      * Retrieve the server response if set.
      *
-     * @return ResponseInterface|null Returns the server response or NULL.
+     * @return ResponseInterface|null Returns the server response or `null`.
      */
     public function getResponse(): ?ResponseInterface
     {
@@ -215,7 +215,7 @@ abstract class AbstractController
      * Checks if a controller helper is set.
      *
      * @param string $name The controller helper name.
-     * @return bool Returns TRUE if the helper exists, FALSE otherwise.
+     * @return bool Returns `true` if the helper exists, `false` otherwise.
      */
     public function hasHelper(string $name): bool
     {
@@ -243,7 +243,7 @@ abstract class AbstractController
      * Proxy method for {@see AbstractController::hasHelper()}.
      *
      * @param string $name The controller helper name.
-     * @return bool Returns TRUE if the helper exists, FALSE otherwise.
+     * @return bool Returns `true` if the helper exists, `false` otherwise.
      */
     public function __isset(string $name): bool
     {

@@ -126,7 +126,7 @@ class Select extends Query implements QueryInterface
      * @param string $alias The alias name for the column. The string can
      *   contains only alphanumeric or underscore characters.
      * @param bool $distinct [optional] Whether to not consider duplicate
-     *   records, default: FALSE.
+     *   records, default: `false`.
      * @return static Returns self reference for method chaining.
      *
      * @throws InvalidArgumentException if aggregate function, column name or

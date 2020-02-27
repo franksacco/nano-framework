@@ -71,7 +71,7 @@ class LazyLoader
      *
      * @param string $primaryKey The primary key value for OneToOne relations.
      * @return Entity|null Returns the searched entity instance or
-     *   NULL if not found.
+     *   `null` if not found.
      *
      * @throws ModelExecutionException if an error occur during query execution.
      */

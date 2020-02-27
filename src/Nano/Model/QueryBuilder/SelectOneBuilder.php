@@ -62,7 +62,7 @@ class SelectOneBuilder extends QueryBuilder
     /**
      * Execute the query and return the entity if found.
      *
-     * @return Entity|null Return an instance of searched entity or NULL if not found.
+     * @return Entity|null Return an instance of searched entity or `null` if not found.
      *
      * @throws ModelExecutionException if an error occur during query execution.
      */

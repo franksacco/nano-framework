@@ -27,7 +27,7 @@ trait DotArrayAccessTrait
      *
      * @param array $array The array.
      * @param string $key The key of the item.
-     * @return bool Returns TRUE if the key is set, FALSE otherwise.
+     * @return bool Returns `true` if the key is set, `false` otherwise.
      */
     public function hasItem(array $array, string $key): bool
     {

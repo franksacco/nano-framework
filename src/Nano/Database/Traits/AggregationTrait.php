@@ -65,12 +65,12 @@ trait AggregationTrait
      * @param string $column The name of the column. The column must be in
      *   grouping column list.
      * @param string $operator The comparison operator from: =, !=, <>, >, <,
-     *   >=, <=, [NOT] LIKE, [NOT] IN, IS [NOT] NULL.
+     *   >=, <=, [NOT] LIKE, [NOT] IN, IS [NOT] `null`.
      * @param mixed $value The condition value. For [NOT] IN operator this
      *   must be an array, for [NOT] IS operator this is not considered,
      *   otherwise this must be a scalar.
      * @param int $type [optional] The data type using the Types::* constants;
-     *   if NULL, the type is evaluated from the value.
+     *   if `null`, the type is evaluated from the value.
      * @return static Returns self reference for method chaining.
      *
      * @throws InvalidArgumentException if column name, operator or value is

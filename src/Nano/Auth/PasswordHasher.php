@@ -22,11 +22,11 @@ use Nano\Config\ConfigurationInterface;
  * Available options for this class are:
  *
  *  - "algorithm": a password algorithm constant denoting the algorithm to
- *   use when hashing the password; default: PASSWORD_DEFAULT.
+ *   use when hashing the password; default: `PASSWORD_DEFAULT`.
  *
  *  - "options": an associative array containing options. See documentation
  *   for information on the supported options for each algorithm. If omitted,
- *   the default cost will be used; default: [].
+ *   the default cost will be used; default: `[]`.
  *
  * @see https://www.php.net/manual/en/book.password.php
  *
@@ -67,10 +67,9 @@ class PasswordHasher
     }
 
     /**
-     * Set the hash algorithm used by password_hash() function.
+     * Set the hash algorithm used by `password_hash()` function.
      *
      * @param int $algorithm A password algorithm constant.
-     * @return void
      */
     public function setAlgorithm(int $algorithm)
     {
@@ -90,12 +89,11 @@ class PasswordHasher
     }
 
     /**
-     * Set tha hashing options used by password_hash() function.
+     * Set tha hashing options used by `password_hash()` function.
      *
      * @see https://www.php.net/manual/en/password.constants.php
      *
      * @param array $options An option list.
-     * @return void
      */
     public function setOptions(array $options)
     {
@@ -106,11 +104,12 @@ class PasswordHasher
      * Returns information about the given hash.
      *
      * Returns an associative array with three elements:
-     *  - algo, which will match a password algorithm constant;
-     *  - algoName, which has the human readable name of the algorithm;
-     *  - options, which includes the options provided when calling password_hash().
+     *  - `algo`: which will match a password algorithm constant;
+     *  - `algoName`: which has the human readable name of the algorithm;
+     *  - `options`: which includes the options provided when calling
+     *   `password_hash()`.
      *
-     * @param string $hash A hash created by password_hash().
+     * @param string $hash A hash created by `password_hash()`.
      * @return array Returns the information array.
      */
     public function getInfo(string $hash): array
@@ -123,7 +122,8 @@ class PasswordHasher
      *
      * @param string $password User plain text password.
      * @param string $hash Existing password hash to compare.
-     * @return bool Returns TRUE if the password and hash match, FALSE otherwise.
+     * @return bool Returns `true` if the given password and hash match,
+     *   `false` otherwise.
      */
     public function check(string $password, string $hash): bool
     {
@@ -134,7 +134,7 @@ class PasswordHasher
      * Creates a password hash.
      *
      * @param string $password Plain text password to hash.
-     * @return bool|string Returns the hashed password, or FALSE on failure.
+     * @return bool|string Returns the hashed password, or `false` on failure.
      */
     public function hash(string $password)
     {
@@ -146,7 +146,8 @@ class PasswordHasher
      * algorithm and options.
      *
      * @param string $hash A password hash.
-     * @return bool Returns TRUE if the hash should be rehashed, FALSE otherwise.
+     * @return bool Returns `true` if the hash should be rehashed, `false`
+     *   otherwise.
      */
     public function needsRehash(string $hash): bool
     {

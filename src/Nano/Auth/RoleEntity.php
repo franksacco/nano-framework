@@ -24,20 +24,20 @@ use Nano\Model\Metadata\Relation;
  * Example of table definition in a MySQL database:
  * <code>
  * CREATE TABLE `roles` (
- *   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
- *   `name` tinytext NOT NULL,
- *   `permissions` text NOT NULL,
- *   `updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
- *   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
- *   `deleted` datetime DEFAULT NULL,
+ *   `id` int(10) unsigned NOT `null` AUTO_INCREMENT,
+ *   `name` tinytext NOT `null`,
+ *   `permissions` text NOT `null`,
+ *   `updated` datetime NOT `null` DEFAULT CURRENT_TIMESTAMP,
+ *   `created` datetime NOT `null` DEFAULT CURRENT_TIMESTAMP,
+ *   `deleted` datetime DEFAULT `null`,
  *   PRIMARY KEY (`id`)
  * ) ENGINE=InnoDB DEFAULT CHARSET=utf8
  * </code>
  * Example of table definition for roles hierarchy:
  * <code>
  * CREATE TABLE `roles_hierarchy` (
- *   `role_id` int(10) unsigned NOT NULL,
- *   `parent_id` int(10) unsigned NOT NULL,
+ *   `role_id` int(10) unsigned NOT `null`,
+ *   `parent_id` int(10) unsigned NOT `null`,
  *   UNIQUE KEY `role_id` (`role_id`,`parent_id`),
  *   KEY `parent_id` (`parent_id`),
  *   CONSTRAINT `role_id` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,

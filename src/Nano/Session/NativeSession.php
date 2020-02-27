@@ -48,7 +48,7 @@ use Psr\Log\LoggerInterface;
  *    'use_trans_sid'             => 0<br>
  *  - "handler": custom session handler.<br>Can be an object or a class name
  *   that implements SessionHandlerInterface interface.
- *  - "log": enable verbose logging for debug; default: FALSE.
+ *  - "log": enable verbose logging for debug; default: `false`.
  *
  * @package Nano\Session
  * @author  Francesco Saccani <saccani.francesco@gmail.com>

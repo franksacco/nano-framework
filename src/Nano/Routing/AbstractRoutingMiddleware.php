@@ -33,7 +33,7 @@ use Twig\TwigFunction;
  * Routing middleware can be configured through the `routing` key in
  * application settings.
  * Available options for this class are:
- *  - `cache`: whether the caching is enabled or not; default: FALSE.
+ *  - `cache`: whether the caching is enabled or not; default: `false`.
  *  - `cache_dir`: the directory where to save cache files.
  *
  * @see https://github.com/nikic/FastRoute

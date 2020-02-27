@@ -153,7 +153,7 @@ class AuthHelper extends AbstractHelper implements LoggerAwareInterface
      * Retrieve the authenticated user.
      *
      * @return AuthenticableInterface|null Returns the user instance if
-     *   authenticated, NULL otherwise.
+     *   authenticated, `null` otherwise.
      */
     public function getUser(): ?AuthenticableInterface
     {
@@ -165,7 +165,7 @@ class AuthHelper extends AbstractHelper implements LoggerAwareInterface
      *
      * @param string $username The provided user name (e.g. email).
      * @param string $secret The provided user secret (e.g. password).
-     * @return bool Returns TRUE if login is successful, FALSE otherwise.
+     * @return bool Returns `true` if login is successful, `false` otherwise.
      */
     public function login(string $username, string $secret): bool
     {

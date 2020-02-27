@@ -170,7 +170,7 @@ abstract class QueryBuilder
      * Add soft deleted entities in the result.
      *
      * @param bool $show [optional] Whether to show soft deleted entities in
-     *     the result; default: TRUE.
+     *     the result; default: `true`.
      * @return static Returns self reference for method chaining.
      */
     public function showDeleted(bool $show = true): self

@@ -27,7 +27,7 @@ interface ProviderInterface
      * database user table.
      *
      * @param string $id The id of the user.
-     * @return AuthenticableInterface|null Returns the user if exists, NULL
+     * @return AuthenticableInterface|null Returns the user if exists, `null`
      *   otherwise.
      */
     public function getUserById(string $id): ?AuthenticableInterface;
@@ -38,7 +38,7 @@ interface ProviderInterface
      * Usually the identifier corresponds with an email or a custom username.
      *
      * @param string $username The username of the user.
-     * @return AuthenticableInterface|null Returns the user if exists, NULL
+     * @return AuthenticableInterface|null Returns the user if exists, `null`
      *   otherwise.
      */
     public function getUserByName(string $username): ?AuthenticableInterface;

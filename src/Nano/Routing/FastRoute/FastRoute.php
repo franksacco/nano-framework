@@ -86,7 +86,7 @@ class FastRoute
     /**
      * Load routes data by cache or given callback.
      *
-     * @param bool $cache [optional] Whether the caching is enabled or not; default: FALSE.
+     * @param bool $cache [optional] Whether the caching is enabled or not; default: `false`.
      * @param string $cacheDir [optional] The directory where to save cache files.
      *
      * @throws RoutingException if an error occur during data loading.

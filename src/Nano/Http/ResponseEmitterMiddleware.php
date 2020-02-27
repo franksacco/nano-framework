@@ -51,7 +51,7 @@ class ResponseEmitterMiddleware implements MiddlewareInterface
      * response; e.g., if headers have already been sent.
      *
      * @param ResponseInterface $response The response to emit.
-     * @param bool $deleteBuffer Delete buffered output without printing it; default TRUE.
+     * @param bool $deleteBuffer Delete buffered output without printing it; default `true`.
      * @return void
      *
      * @throws RuntimeException if headers has been emitted.

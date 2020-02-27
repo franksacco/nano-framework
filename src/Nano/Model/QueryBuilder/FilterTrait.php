@@ -37,7 +37,7 @@ trait FilterTrait
      *   possible to prepend a table name or an alias to the column name adding
      *   a dot between them.
      * @param string $operator The comparison operator from:
-     *   <code>=, !=, <>, <, >, <=, >=, [NOT] LIKE, [NOT] IN, IS [NOT] NULL<code>.
+     *   <code>=, !=, <>, <, >, <=, >=, [NOT] LIKE, [NOT] IN, IS [NOT] `null`<code>.
      * @param mixed $value The condition value. For `[NOT] IN` operator this
      *   must be an `array`, for `[NOT] IS` operator this is not considered,
      *   otherwise this must be a `scalar`.
@@ -76,7 +76,7 @@ trait FilterTrait
      *   to prepend a table name or an alias to the column name adding a dot
      *   between them.
      *  - `$operator` is the comparison operator from:
-     *   <code>=, !=, <>, <, >, <=, >=, [NOT] LIKE, [NOT] IN, IS [NOT] NULL<code>.
+     *   <code>=, !=, <>, <, >, <=, >=, [NOT] LIKE, [NOT] IN, IS [NOT] `null`<code>.
      *  - `$value` is the condition value. For `[NOT] IN` operator this
      *   must be an `array`, for `[NOT] IS` operator this is not considered,
      *   otherwise this must be a `scalar`.

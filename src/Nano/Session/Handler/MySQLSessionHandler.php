@@ -37,15 +37,15 @@ use SessionUpdateTimestampHandlerInterface;
  *  - "table": database table name with schema defined below;
  *   default value: 'sessions'.
  *  - "lock": enable database locking to avoid server-side race conditions;
- *   default value: TRUE.
+ *   default value: `true`.
  *  - "lock_timeout": timeout for database lock in seconds; default: 20.
  *
  * Example of table definition:
  * <code>
  * CREATE TABLE `sessions` (
- *     `id` varchar(256) NOT NULL,
- *     `data` text NOT NULL,
- *     `updated` datetime NOT NULL,
+ *     `id` varchar(256) NOT `null`,
+ *     `data` text NOT `null`,
+ *     `updated` datetime NOT `null`,
  *     PRIMARY KEY (`id`)
  * ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
  * </code>

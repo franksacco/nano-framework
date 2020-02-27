@@ -26,7 +26,7 @@ interface ConfigurationInterface
      * Use '.' to access array elements.
      *
      * @param string $key The key of the value to check.
-     * @return bool Returns TRUE if value is set, FALSE otherwise.
+     * @return bool Returns `true` if value is set, `false` otherwise.
      */
     public function has(string $key): bool;
 
@@ -37,7 +37,7 @@ interface ConfigurationInterface
      *
      * @param string $key The key of the value to obtain.
      * @param mixed $default [optional] The return value when the key is not set.
-     * @return mixed Returns configuration value if set, $default otherwise.
+     * @return mixed Returns configuration value if set, `$default` otherwise.
      */
     public function get(string $key, $default = null);
 
@@ -49,7 +49,8 @@ interface ConfigurationInterface
      * @param string $key The of the value to set.
      * @param mixed $value The configuration value.
      *
-     * @throws UnexpectedValueException when attempting to set a non-array value.
+     * @throws UnexpectedValueException when attempting to set a non-array
+     *   value.
      */
     public function set(string $key, $value);
 
@@ -60,7 +61,7 @@ interface ConfigurationInterface
      *
      * @param string $key The key of an array used for the partition.
      * @return ConfigurationInterface Returns new instance of this class
-     *     containing the partition defined through the given key.
+     *   containing the partition defined through the given key.
      */
     public function fork(string $key): ConfigurationInterface;
 

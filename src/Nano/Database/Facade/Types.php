@@ -23,7 +23,7 @@ use PDO;
 interface Types
 {
     /**
-     * Represents the SQL NULL data type.
+     * Represents the SQL `null` data type.
      */
     const NULL = PDO::PARAM_NULL;
 

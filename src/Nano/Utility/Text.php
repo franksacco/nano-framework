@@ -68,7 +68,7 @@ class Text
      *
      * @param string $className The complete class name.
      * @param bool $removeConvention [optional] Whether to remove convention
-     *   names; default: FALSE.
+     *   names; default: `false`.
      * @return string
      */
     public static function className(string $className, bool $removeConvention = false): string

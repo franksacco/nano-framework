@@ -32,7 +32,7 @@ use Psr\Log\LoggerInterface;
  *  - `realm`: the string assigned by the server to identify the protection
  *   space, default: "Restricted".
  *  - `secure`: perform basic HTTP authentication only through a secure
- *   connection (HTTPS); default: TRUE.
+ *   connection (HTTPS); default: `true`.
  *  - `whitelist`: the list of host that can be authenticated through an
  *   insecure channel; default: ['localhost', '127.0.0.1'].
  *

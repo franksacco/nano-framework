@@ -258,8 +258,8 @@ class EntityMetadata
     /**
      * Determine if the entity has at least one relation to be considered during query building.
      *
-     * @return bool Returns TRUE if entity has at least one relation with eager
-     *     loading or a OneToOne relation with Lazy loading, FALSE otherwise.
+     * @return bool Returns `true` if entity has at least one relation with eager
+     *     loading or a OneToOne relation with Lazy loading, `false` otherwise.
      */
     public function hasRelationsForQueryBuilding(): bool
     {

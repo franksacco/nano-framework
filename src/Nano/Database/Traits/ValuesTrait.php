@@ -46,7 +46,7 @@ trait ValuesTrait
      *   possible to prepend a table name/alias adding a dot between.
      * @param mixed $value The value of the column.
      * @param int $type [optional] The data type using the Types::* constants;
-     *   if NULL, the type is evaluated from the value.
+     *   if `null`, the type is evaluated from the value.
      * @return static Returns self reference for method chaining.
      *
      * @throws InvalidArgumentException if column name is not valid.
@@ -71,7 +71,7 @@ trait ValuesTrait
      *   possible to prepend a table name/alias adding a dot between.<br>
      *  - `value` is the value of the column.
      *  - `type` is the data type using the Types::* constants;
-     *   if NULL, the type is evaluated from the value.
+     *   if `null`, the type is evaluated from the value.
      *
      * @param array $values The list of values.
      * @return static Returns self reference for method chaining.

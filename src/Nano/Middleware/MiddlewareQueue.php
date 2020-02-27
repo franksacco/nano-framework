@@ -95,7 +95,7 @@ class MiddlewareQueue implements Countable
      *
      * @param int $index The middleware index.
      * @return MiddlewareInterface|null Returns middleware instance if index
-     *   exists, NULL otherwise.
+     *   exists, `null` otherwise.
      */
     public function get(int $index): ?MiddlewareInterface
     {

@@ -172,8 +172,8 @@ abstract class Entity
      *
      * Example of SQL definition:
      * <code>
-     * updated DATETIME NOT NULL
-     * created DATETIME NOT NULL
+     * updated DATETIME NOT `null`
+     * created DATETIME NOT `null`
      * </code>
      *
      * @var bool
@@ -187,7 +187,7 @@ abstract class Entity
      * must be defined in the entity table.
      *
      * Example of SQL definition:
-     * <code>deleted DATETIME DEFAULT NULL</code>
+     * <code>deleted DATETIME DEFAULT `null`</code>
      *
      * @var bool
      */
@@ -208,7 +208,7 @@ abstract class Entity
     private $metadata;
 
     /**
-     * The primary key value or NULL if the entity is not persisted.
+     * The primary key value or `null` if the entity is not persisted.
      *
      * @var string|null
      */
@@ -249,7 +249,7 @@ abstract class Entity
      * Get a single entity using the value of its primary key.
      *
      * @param string $primaryKey The primary key value.
-     * @return static|null Returns an instance of searched entity or NULL if
+     * @return static|null Returns an instance of searched entity or `null` if
      *   not found.
      *
      * @throws ModelExecutionException if an error occurs during the execution
@@ -349,7 +349,7 @@ abstract class Entity
     }
 
     /**
-     * Returns the primary key value or NULL if the entity is not persisted.
+     * Returns the primary key value or `null` if the entity is not persisted.
      *
      * @return string|null
      */
@@ -438,7 +438,7 @@ abstract class Entity
     /**
      * Delete the entity.
      *
-     * @param bool $hardDelete [optional] Force hard deletion; default: FALSE.
+     * @param bool $hardDelete [optional] Force hard deletion; default: `false`.
      *
      * @throws ModelExecutionException if this entity is not persisted in database.
      * @throws ModelExecutionException if an error occur during query execution.
@@ -581,10 +581,10 @@ abstract class Entity
     }
 
     /**
-     * Determine if an entity property is set and is not NULL.
+     * Determine if an entity property is set and is not `null`.
      *
      * @param string $name The name of the property.
-     * @return bool Returns TRUE if the property is set and is not NULL, FALSE otherwise.
+     * @return bool Returns `true` if the property is set and is not `null`, `false` otherwise.
      */
     public function __isset(string $name): bool
     {

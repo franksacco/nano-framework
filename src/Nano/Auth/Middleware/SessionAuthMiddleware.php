@@ -36,7 +36,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  *  - `expiration`: the time-to-live of session's validity in seconds;
  *   default: 1200.
  *  - `redirect`: whether to enable redirection when authentication fails;
- *   default: TRUE.
+ *   default: `true`.
  *  - `redirect_path`: the path of the redirection on authentication failure;
  *   default: '/login'.
  *
@@ -141,7 +141,7 @@ class SessionAuthMiddleware extends AuthMiddleware
      * Check if the session is expired.
      *
      * @param DateTime $updated The datetime of the last update.
-     * @return bool Returns TRUE if the session is expired, FALSE otherwise.
+     * @return bool Returns `true` if the session is expired, `false` otherwise.
      */
     protected function isExpired(DateTime $updated): bool
     {

@@ -42,16 +42,17 @@ class Container extends LeagueContainer
     {
         parent::__construct();
 
-        // register the reflection container as a delegate to enable auto wiring
+        // Register the reflection container as a
+        // delegate to enable auto wiring.
         $this->delegate(
             (new ReflectionContainer())->cacheResolutions()
         );
 
-        // initialize application settings
+        // Initialize application settings.
         $settings = new Configuration($settings);
         $this->share(ConfigurationInterface::class, $settings);
 
-        // setup default services
+        // Setup default services.
         $this->addServiceProvider(new DefaultServiceProvider($settings));
     }
 }

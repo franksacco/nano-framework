@@ -71,9 +71,9 @@ class NanoResponse extends Response
      *   cookie will be available on.
      * @param string|null $domain [optional] The (sub)domain that the cookie
      *   is available to.
-     * @param bool $secure [optional] When TRUE the cookie will only be
+     * @param bool $secure [optional] When `true` the cookie will only be
      *   transmitted over a secure HTTPS connection.
-     * @param bool $httpOnly [optional] When TRUE the cookie will be made
+     * @param bool $httpOnly [optional] When `true` the cookie will be made
      *   accessible only through the HTTP protocol.
      * @param string|null $sameSite [optional] When COOKIE_SAMESITE_STRICT
      *   prevents the browser from sending this cookie along with cross-site

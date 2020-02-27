@@ -24,7 +24,7 @@ interface AuthorizableInterface
      * Determine if the given permission is granted for this entity.
      *
      * @param string $permission The name of the permission to check.
-     * @return bool Returns TRUE if the permission is granted, FALSE otherwise.
+     * @return bool Returns `true` if the permission is granted, `false` otherwise.
      */
     public function can(string $permission): bool;
 

@@ -42,7 +42,7 @@ interface SessionInterface
     /**
      * Checks whether the session is active or not.
      *
-     * @return bool Return TRUE if session is active, FALSE otherwise.
+     * @return bool Return `true` if session is active, `false` otherwise.
      */
     public function isActive(): bool;
 
@@ -70,7 +70,7 @@ interface SessionInterface
      * If the session is not active, this method should start it.
      *
      * @param bool $deleteOld [optional] Whether to delete the old session file
-     *   or not; default: FALSE.
+     *   or not; default: `false`.
      *
      * @throws SessionException if an error occurs.
      */
@@ -86,7 +86,7 @@ interface SessionInterface
      * If the session is not active, this method should start it.
      *
      * @param bool $deleteCookie [optional] Whether to delete the session
-     *   cookie or not; default: FALSE.
+     *   cookie or not; default: `false`.
      *
      * @throws SessionException if an error occurs.
      */
@@ -120,9 +120,9 @@ interface SessionInterface
      *   cookie will be available on.
      * @param string|null $domain [optional] The (sub)domain that the cookie
      *   is available to.
-     * @param bool $secure [optional] When TRUE the cookie will only be
+     * @param bool $secure [optional] When `true` the cookie will only be
      *   transmitted over a secure HTTPS connection.
-     * @param bool $httpOnly [optional] When TRUE the cookie will be made
+     * @param bool $httpOnly [optional] When `true` the cookie will be made
      *   accessible only through the HTTP protocol.
      * @param string|null $sameSite [optional] When "Strict" prevents the
      *   browser from sending this cookie along with cross-site requests, when

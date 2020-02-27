@@ -100,7 +100,7 @@ class Route
     /**
      * Get the name of the route.
      *
-     * @return string|null Returns the route name if set, NULL otherwise.
+     * @return string|null Returns the route name if set, `null` otherwise.
      */
     public function getName()
     {
