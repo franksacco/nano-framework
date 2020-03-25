@@ -38,10 +38,10 @@ That's it. Now you have to implement the logic of your application.
 ## Documentation
 > :warning: Documentation is under development.
 
-Documentation for this project is available in the [docs folder](docs/index.md).
+Documentation for this project is available in the [docs folder](docs/README.md).
 
 ## License
 The Nano Framework is open-sourced software licensed under the [MIT license](README.md).
 
 ## Author
-[Francesco Saccani](https://github.com/franksacco) <saccani.francesco@gmail.com>
+[Francesco Saccani](https://github.com/franksacco) (saccani.francesco@gmail.com)
