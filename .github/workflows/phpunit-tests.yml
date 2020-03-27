@@ -1,4 +1,4 @@
-name: PHP Composer
+name: PHPUnit Tests
 
 on:
   push:
@@ -18,8 +18,5 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress --no-suggest
 
-    - name: PHPUnit (php-actions)
-      uses: php-actions/phpunit@v1
-      with:
-        config: phpunit.xml.dist
-        memory: 256M
+    - name: Run PHPUnit tests
+      run: composer run-script tests
