@@ -32,5 +32,8 @@
             "homepage": "https://github.com/franksacco",
             "role": "Developer"
         }
-    ]
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    }
 }
