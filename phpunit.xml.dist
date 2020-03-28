@@ -10,8 +10,8 @@
          processIsolation="false"
          stopOnFailure="false">
     <testsuites>
-        <testsuite name="Nano Unit Tests">
-            <directory>tests</directory>
+        <testsuite name="Routing Unit Tests">
+            <directory>tests/Nano/Routing</directory>
         </testsuite>
     </testsuites>
     <filter>
