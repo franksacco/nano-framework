@@ -36,7 +36,7 @@ use Twig\TwigFunction;
  *  - `cache`: whether the caching is enabled or not; default: `false`.
  *  - `cache_dir`: the directory where to save cache files.
  *
- * @see https://github.com/nikic/FastRoute
+ * @see https://github.com/franksacco/nano-framework/blob/master/docs/routing.md
  *
  * @package Nano\Routing
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
@@ -68,8 +68,8 @@ abstract class AbstractRoutingMiddleware implements MiddlewareInterface
      *
      * @param ContainerInterface $container The DI container.
      * @param ConfigurationInterface $config The application settings.
-     * @param ResponseFactoryInterface $factory The factory used to create a
-     *     404 or 405 error response.
+     * @param ResponseFactoryInterface $factory The server response factory
+     *   used to create a 404 or 405 error response.
      */
     public function __construct(ContainerInterface $container,
                                 ConfigurationInterface $config,
@@ -120,17 +120,16 @@ abstract class AbstractRoutingMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        // Transform the request path in order to have always a leading '/'
-        // and never a trailing '/'. In this way, the path "/example" and
-        // "/example/" are the same.
+        // Transform the request path in order to have always a leading '/' and never a
+        // trailing '/'. In this way, paths "/example" and "/example/" give the same result.
         $path = '/' . trim(rawurldecode($request->getUri()->getPath()), '/');
         $result = $this->fastRoute->dispatch($request->getMethod(), $path);
 
         if ($result instanceof Result\FoundResult) {
             $handler = new RouteRequestHandler($result->getMiddlewares(), $handler);
             $request = $request
-                ->withAttribute(Dispatcher::REQUEST_HANDLER_ATTRIBUTE, $result->getHandler())
-                ->withAttribute(Dispatcher::HANDLER_PARAMS_ATTRIBUTE, $result->getParams());
+                ->withAttribute(Dispatcher::REQUEST_HANDLER_ACTION, $result->getHandler())
+                ->withAttribute(Dispatcher::REQUEST_HANDLER_PARAMS, $result->getParams());
 
         } elseif ($result instanceof Result\MethodNotAllowedResult) {
             return $this->factory->createResponse(405)

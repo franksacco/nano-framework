@@ -380,6 +380,7 @@ dispatching.\
 ```php
 public function getUrlGenerator(): UrlGenerator
 ```
+Get the url generator.\
 **Return** [`Nano\Routing\FastRoute\UrlGenerator`](#nanoroutingfastrouteurlgenerator) Returns the url generator.\
 **Throws**\
 &nbsp;&nbsp;`Nano\Routing\FastRoute\RoutingException` if the routing data has not yet been loaded.
@@ -388,7 +389,7 @@ public function getUrlGenerator(): UrlGenerator
 
 ### `Nano\Routing\FastRoute\Router`
 
-Proxy class for FastRoute's RouteCollector.
+Routes collector and manager.
 
 <br />
 
@@ -397,10 +398,10 @@ public function __construct(RouteParser $routeParser,
                             DataGenerator $dataGenerator,
                             ?ContainerInterface $container = null)
 ```
-Constructs a route collector.\
+Initialize the router.\
 **Parameters**\
-&nbsp;&nbsp;`FastRoute\RouteParser $routeParser`\
-&nbsp;&nbsp;`FastRoute\DataGenerator $dataGenerator`\
+&nbsp;&nbsp;`FastRoute\RouteParser $routeParser` The route parser.\
+&nbsp;&nbsp;`FastRoute\DataGenerator $dataGenerator` The data generator.\
 &nbsp;&nbsp;`Psr\Container\ContainerInterface|null $container` _\[optional\]_ The DI container.
 
 <br />
@@ -424,6 +425,19 @@ public function get(string $route, $handler, string $name = null): Route
 ```
 Adds a GET route to the collection.\
 This is an alias of `$this->route('GET', $route, $handler, $name)`.\
+**Parameters**\
+&nbsp;&nbsp;`string $route` The pattern of the route.\
+&nbsp;&nbsp;`mixed $handler` The handler of the route.\
+&nbsp;&nbsp;`string $name` _\[optional\]_ The name of the route.\
+**Return** [`Nano\Routing\FastRoute\Route`](#nanoroutingfastrouteroute) Returns the created route.
+
+<br />
+
+```php
+public function head(string $route, $handler, string $name = null): Route
+```
+Adds a HEAD route to the collection.\
+This is an alias of `$this->route('HEAD', $route, $handler, $name)`.\
 **Parameters**\
 &nbsp;&nbsp;`string $route` The pattern of the route.\
 &nbsp;&nbsp;`mixed $handler` The handler of the route.\
@@ -459,19 +473,6 @@ This is an alias of `$this->route('PUT', $route, $handler, $name)`.\
 <br />
 
 ```php
-public function delete(string $route, $handler, string $name = null): Route
-```
-Adds a DELETE route to the collection.\
-This is an alias of `$this->route('DELETE', $route, $handler, $name)`.\
-**Parameters**\
-&nbsp;&nbsp;`string $route` The pattern of the route.\
-&nbsp;&nbsp;`mixed $handler` The handler of the route.\
-&nbsp;&nbsp;`string $name` _\[optional\]_ The name of the route.\
-**Return** [`Nano\Routing\FastRoute\Route`](#nanoroutingfastrouteroute) Returns the created route.
-
-<br />
-
-```php
 public function patch(string $route, $handler, string $name = null): Route
 ```
 Adds a PATCH route to the collection.\
@@ -485,15 +486,23 @@ This is an alias of `$this->route('PATCH', $route, $handler, $name)`.\
 <br />
 
 ```php
-public function head(string $route, $handler, string $name = null): Route
+public function delete(string $route, $handler, string $name = null): Route
 ```
-Adds a HEAD route to the collection.\
-This is an alias of `$this->route('HEAD', $route, $handler, $name)`.\
+Adds a DELETE route to the collection.\
+This is an alias of `$this->route('DELETE', $route, $handler, $name)`.\
 **Parameters**\
 &nbsp;&nbsp;`string $route` The pattern of the route.\
 &nbsp;&nbsp;`mixed $handler` The handler of the route.\
 &nbsp;&nbsp;`string $name` _\[optional\]_ The name of the route.\
 **Return** [`Nano\Routing\FastRoute\Route`](#nanoroutingfastrouteroute) Returns the created route.
+
+<br />
+
+```php
+public function getRoutes(): array
+```
+Get the list of defined routes.\
+**Return** `Route[]` Returns the list of routes.
 
 <br />
 
@@ -507,6 +516,22 @@ All routes created in the passed callback will have the given group prefix prepe
 &nbsp;&nbsp;`callable $callback` The callable used to define routes that expects as single argument
 an instance of [RouteGroup](#nanoroutingfastrouteroutegroup).\
 **Return** [`Nano\Routing\FastRoute\Route`](#nanoroutingfastrouteroute) Returns the created route.
+
+<br />
+
+```php
+public function getGroups(): array
+```
+Get the list of defined groups.\
+**Return** `RouteGroup[]` Returns the group list.
+
+<br />
+
+```php
+public function getContainer(): ?ContainerInterface
+```
+Get the DI container, if defined.\
+**Return** `ContainerInterface|null` Returns the DI container if defined, `null` otherwise.
 
 <br />
 
@@ -627,14 +652,6 @@ Get the prefix of the route group.\
 <br />
 
 ```php
-public function getRoutes(): array
-```
-Get the list of routes of this group.\
-**Return** `Nano\Routing\FastRoute\Route[]` Returns the route list.
-
-<br />
-
-```php
 public function route(string $method, string $route, $handler, ?string $name = null): Route
 ```
 Adds a route to the collection.\
@@ -653,6 +670,19 @@ public function get(string $route, $handler, string $name = null): Route
 ```
 Adds a GET route to the collection.\
 This is an alias of `$this->route('GET', $route, $handler, $name)`.\
+**Parameters**\
+&nbsp;&nbsp;`string $route` The pattern of the route.\
+&nbsp;&nbsp;`mixed $handler` The handler of the route.\
+&nbsp;&nbsp;`string $name` _\[optional\]_ The name of the route.\
+**Return** [`Nano\Routing\FastRoute\Route`](#nanoroutingfastrouteroute) Returns the created route.
+
+<br />
+
+```php
+public function head(string $route, $handler, string $name = null): Route
+```
+Adds a HEAD route to the collection.\
+This is an alias of `$this->route('HEAD', $route, $handler, $name)`.\
 **Parameters**\
 &nbsp;&nbsp;`string $route` The pattern of the route.\
 &nbsp;&nbsp;`mixed $handler` The handler of the route.\
@@ -688,19 +718,6 @@ This is an alias of `$this->route('PUT', $route, $handler, $name)`.\
 <br />
 
 ```php
-public function delete(string $route, $handler, string $name = null): Route
-```
-Adds a DELETE route to the collection.\
-This is an alias of `$this->route('DELETE', $route, $handler, $name)`.\
-**Parameters**\
-&nbsp;&nbsp;`string $route` The pattern of the route.\
-&nbsp;&nbsp;`mixed $handler` The handler of the route.\
-&nbsp;&nbsp;`string $name` _\[optional\]_ The name of the route.\
-**Return** [`Nano\Routing\FastRoute\Route`](#nanoroutingfastrouteroute) Returns the created route.
-
-<br />
-
-```php
 public function patch(string $route, $handler, string $name = null): Route
 ```
 Adds a PATCH route to the collection.\
@@ -714,15 +731,44 @@ This is an alias of `$this->route('PATCH', $route, $handler, $name)`.\
 <br />
 
 ```php
-public function head(string $route, $handler, string $name = null): Route
+public function delete(string $route, $handler, string $name = null): Route
 ```
-Adds a HEAD route to the collection.\
-This is an alias of `$this->route('HEAD', $route, $handler, $name)`.\
+Adds a DELETE route to the collection.\
+This is an alias of `$this->route('DELETE', $route, $handler, $name)`.\
 **Parameters**\
 &nbsp;&nbsp;`string $route` The pattern of the route.\
 &nbsp;&nbsp;`mixed $handler` The handler of the route.\
 &nbsp;&nbsp;`string $name` _\[optional\]_ The name of the route.\
 **Return** [`Nano\Routing\FastRoute\Route`](#nanoroutingfastrouteroute) Returns the created route.
+
+<br />
+
+```php
+public function getRoutes(): array
+```
+Get the list of defined routes.\
+**Return** `Route[]` Returns the list of routes.
+
+<br />
+
+```php
+public function group(string $prefix, callable $callback): RouteGroup
+```
+Create a route group with a common prefix.\
+All routes created in the passed callback will have the given group prefix prepended.\
+**Parameters**\
+&nbsp;&nbsp;`string $prefix` The prefix of the group.\
+&nbsp;&nbsp;`callable $callback` The callable used to define routes that expects as single argument
+an instance of [RouteGroup](#nanoroutingfastrouteroutegroup).\
+**Return** [`Nano\Routing\FastRoute\Route`](#nanoroutingfastrouteroute) Returns the created route.
+
+<br />
+
+```php
+public function getGroups(): array
+```
+Get the list of defined groups.\
+**Return** `RouteGroup[]` Returns the group list.
 
 <br />
 

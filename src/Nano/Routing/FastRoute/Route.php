@@ -102,7 +102,7 @@ class Route
      *
      * @return string|null Returns the route name if set, `null` otherwise.
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }

@@ -13,101 +13,80 @@ declare(strict_types=1);
 namespace Nano\Routing\FastRoute;
 
 use FastRoute\DataGenerator;
-use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
+use Nano\Routing\FastRoute\Traits\GroupsTrait;
 use Nano\Routing\FastRoute\Traits\RoutesTrait;
 use Psr\Container\ContainerInterface;
 
 /**
- * Proxy class for FastRoute RouteCollector.
+ * Routes collector and manager.
  *
- * This class provides the following functionalities:
- *  - named routes: for each route a name can be provided in order to
- *   uniquely identify a route;
- *  - reverse routing: when a named route is created, parsed data from the
- *   definition can be used by {@see UrlGenerator} to perform reverse routing;
- *  - middlewares: it is possible to specify middlewares that are executed
- *   only for some routes.
+ * @see https://github.com/franksacco/nano-framework/blob/master/docs/routing.md
  *
  * @package Nano\Routing
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
  */
-class Router extends RouteCollector
+class Router
 {
-    use RoutesTrait;
+    use GroupsTrait, RoutesTrait;
 
     /**
-     * @var ContainerInterface|null
+     * @var RouteParser
      */
-    private $container;
+    protected $routeParser;
 
     /**
-     * @var RouteGroup[]
+     * @var DataGenerator
      */
-    private $groups = [];
+    protected $dataGenerator;
 
     /**
-     * @var array
+     * @var array|null
      */
-    private $data = [];
+    protected $data;
 
     /**
-     * @var array
+     * @var array|null
      */
-    private $reverseData = [];
+    protected $reverseData;
 
     /**
-     * @var bool
-     */
-    private $dataCalculated = false;
-
-    /**
-     * @inheritDoc
+     * Initialize the router.
+     *
+     * @param RouteParser $routeParser The route parser.
+     * @param DataGenerator $dataGenerator The data generator.
      * @param ContainerInterface|null $container [optional] The DI container.
      */
     public function __construct(RouteParser $routeParser,
                                 DataGenerator $dataGenerator,
                                 ?ContainerInterface $container = null)
     {
-        parent::__construct($routeParser, $dataGenerator);
-        $this->container = $container;
+        $this->routeParser   = $routeParser;
+        $this->dataGenerator = $dataGenerator;
+        $this->container     = $container;
+        $this->router        = $this;
     }
 
     /**
-     * Create a route group with a common prefix.
+     * Get the DI container, if defined.
      *
-     * All routes created in the passed callback will have the given group
-     * prefix prepended.
-     *
-     * @param string $prefix The prefix of the group.
-     * @param callable $callback The callable used to define routes that
-     *   expects as single argument an instance of {@see RouteGroup}.
-     * @return RouteGroup Returns the created route group.
+     * @return ContainerInterface|null Returns the DI container
+     *   if defined, `null` otherwise.
      */
-    public function group(string $prefix, callable $callback): RouteGroup
+    public function getContainer(): ?ContainerInterface
     {
-        $group = new RouteGroup($prefix, $callback, $this->container);
-        $this->groups[] = $group;
-        return $group;
+        return $this->container;
     }
 
     /**
-     * Calculate the parsed data using the list of routes.
+     * Calculate the parsed data for routing.
      */
-    private function calculateData()
+    protected function calculateData()
     {
-        foreach ($this->groups as $group) {
-            $this->routes = array_merge($this->routes, $group->getRoutes());
-        }
+        $routes = $this->routes;
+        foreach ($routes as $route) {
 
-        foreach ($this->routes as $route) {
             $routeDatas = $this->routeParser->parse($route->getRoute());
-
-            $name = $route->getName();
-            if ($name) {
-                $this->reverseData[$name] = $routeDatas;
-            }
-
             foreach ($routeDatas as $routeData) {
                 $handler = [
                     'middlewares' => $route->getMiddlewares(),
@@ -117,20 +96,43 @@ class Router extends RouteCollector
             }
         }
 
-        $this->data = $this->dataGenerator->getData();
-        $this->dataCalculated = true;
+        return $this->dataGenerator->getData();
     }
 
     /**
-     * @inheritDoc
+     * Returns the collected route data, as provided by the data generator.
+     *
+     * @return array
      */
     public function getData(): array
     {
-        if (! $this->dataCalculated) {
-            $this->calculateData();
+        if ($this->data === null) {
+            $this->data = $this->calculateData();
         }
 
         return $this->data;
+    }
+
+    /**
+     * Calculate the data for reverse routing.
+     *
+     * @return array
+     */
+    protected function calculateReverseData(): array
+    {
+        $reverseData = [];
+        $routes = $this->routes;
+
+        foreach ($routes as $route) {
+            $routeDatas = $this->routeParser->parse($route->getRoute());
+
+            $name = $route->getName();
+            if ($name) {
+                $reverseData[$name] = $routeDatas;
+            }
+        }
+
+        return $reverseData;
     }
 
     /**
@@ -143,8 +145,8 @@ class Router extends RouteCollector
      */
     public function getReverseData(): array
     {
-        if (! $this->dataCalculated) {
-            $this->calculateData();
+        if ($this->reverseData === null) {
+            $this->reverseData = $this->calculateReverseData();
         }
 
         return $this->reverseData;

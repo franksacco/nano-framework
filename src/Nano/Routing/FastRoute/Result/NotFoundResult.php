@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Nano\Routing\FastRoute\Result;
 
 /**
- * Class representing a Not-Found routing error.
+ * Class representing a Not Found routing result.
  *
  * @package Nano\Routing
  * @author  Francesco Saccani <saccani.francesco@gmail.com>

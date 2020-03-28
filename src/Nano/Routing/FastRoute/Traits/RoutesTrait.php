@@ -10,10 +10,10 @@
 
 declare(strict_types=1);
 
-
 namespace Nano\Routing\FastRoute\Traits;
 
 use Nano\Routing\FastRoute\Route;
+use Psr\Container\ContainerInterface;
 
 /**
  * Methods for route definition.
@@ -24,9 +24,24 @@ use Nano\Routing\FastRoute\Route;
 trait RoutesTrait
 {
     /**
+     * @var ContainerInterface|null
+     */
+    protected $container;
+
+    /**
      * @var Route[]
      */
-    private $routes = [];
+    protected $routes = [];
+
+    /**
+     * Get the list of defined routes.
+     *
+     * @return Route[] Returns the list of routes.
+     */
+    public function getRoutes(): array
+    {
+        return $this->routes;
+    }
 
     /**
      * Adds a route to the collection.
@@ -54,11 +69,26 @@ trait RoutesTrait
      * @param string $route The pattern of the route.
      * @param mixed $handler The handler of the route.
      * @param string $name [optional] The name of the route.
-     * @return Route Returns self reference for methods chaining.
+     * @return Route Returns the created route.
      */
     public function get($route, $handler, string $name = null): Route
     {
         return $this->route('GET', $route, $handler, $name);
+    }
+
+    /**
+     * Adds a HEAD route to the collection.
+     *
+     * This is an alias of `$this->route('HEAD', $route, $handler, $name)`.
+     *
+     * @param string $route The pattern of the route.
+     * @param mixed $handler The handler of the route.
+     * @param string $name [optional] The name of the route.
+     * @return Route Returns the created route.
+     */
+    public function head($route, $handler, string $name = null): Route
+    {
+        return $this->route('HEAD', $route, $handler, $name);
     }
 
     /**
@@ -92,21 +122,6 @@ trait RoutesTrait
     }
 
     /**
-     * Adds a DELETE route to the collection.
-     *
-     * This is an alias of `$this->route('DELETE', $route, $handler, $name)`.
-     *
-     * @param string $route The pattern of the route.
-     * @param mixed $handler The handler of the route.
-     * @param string $name [optional] The name of the route.
-     * @return Route Returns the created route.
-     */
-    public function delete($route, $handler, string $name = null): Route
-    {
-        return $this->route('DELETE', $route, $handler, $name);
-    }
-
-    /**
      * Adds a PATCH route to the collection.
      *
      * This is an alias of `$this->route('PATCH', $route, $handler, $name)`.
@@ -122,17 +137,17 @@ trait RoutesTrait
     }
 
     /**
-     * Adds a HEAD route to the collection.
+     * Adds a DELETE route to the collection.
      *
-     * This is an alias of `$this->route('HEAD', $route, $handler, $name)`.
+     * This is an alias of `$this->route('DELETE', $route, $handler, $name)`.
      *
      * @param string $route The pattern of the route.
      * @param mixed $handler The handler of the route.
      * @param string $name [optional] The name of the route.
      * @return Route Returns the created route.
      */
-    public function head($route, $handler, string $name = null): Route
+    public function delete($route, $handler, string $name = null): Route
     {
-        return $this->route('HEAD', $route, $handler, $name);
+        return $this->route('DELETE', $route, $handler, $name);
     }
 }

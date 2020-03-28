@@ -25,6 +25,14 @@ class RoutingException extends \InvalidArgumentException implements NanoExceptio
     /**
      * @return RoutingException
      */
+    public static function forNotLoadedData(): self
+    {
+        return new self('Routing data has not yet been loaded');
+    }
+
+    /**
+     * @return RoutingException
+     */
     public static function forInvalidCacheDir(): self
     {
         return new self('Unable to load routing data: the cache directory given is not valid');

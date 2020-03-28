@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Nano\Routing\FastRoute;
 
+use Nano\Routing\FastRoute\Traits\GroupsTrait;
 use Nano\Routing\FastRoute\Traits\MiddlewareTrait;
 use Nano\Routing\FastRoute\Traits\RoutesTrait;
-use Psr\Container\ContainerInterface;
 
 /**
  * Representation of a route group with a common prefix.
@@ -24,8 +24,8 @@ use Psr\Container\ContainerInterface;
  */
 class RouteGroup
 {
-    use MiddlewareTrait, RoutesTrait {
-        route as private createRoute;
+    use GroupsTrait, MiddlewareTrait, RoutesTrait {
+        group as protected createGroup;
     }
 
     /**
@@ -34,28 +34,35 @@ class RouteGroup
     private $prefix;
 
     /**
-     * @var callable
-     */
-    private $callback;
-
-    /**
      * Initialize the route group.
      *
      * @param string $prefix The prefix of the group.
-     * @param callable $callback The callable that defines group routes.
-     * @param ContainerInterface|null $container [optional] The DI container.
+     * @param callable $callback The callback used to define routes.
+     * @param Router $router The router
      */
-    public function __construct(string $prefix, callable $callback, ?ContainerInterface $container = null)
+    public function __construct(string $prefix, callable $callback, Router $router)
     {
-        $this->prefix    = '/' . trim($prefix, '/');
-        $this->callback  = $callback;
-        $this->container = $container;
+        $this->prefix    = $prefix;
+        $this->router    = $router;
+        $this->container = $router->getContainer();
+
+        $this->loadRoutes($callback);
+    }
+
+    /**
+     * Execute the callback in order to define routes.
+     *
+     * @param callable $callback The callback used to define routes.
+     */
+    private function loadRoutes(callable $callback)
+    {
+        $callback($this);
     }
 
     /**
      * Get the prefix of the route group.
      *
-     * @return string Returns the prefix if the group.
+     * @return string Returns the prefix of the group.
      */
     public function getPrefix(): string
     {
@@ -63,35 +70,36 @@ class RouteGroup
     }
 
     /**
-     * Get the list of routes of this group.
-     *
-     * @return Route[] Returns the route list.
+     * @inheritDoc
      */
-    public function getRoutes(): array
+    public function group(string $prefix, callable $callback): RouteGroup
     {
-        ($this->callback)($this);
-
-        return $this->routes;
+        return $this->createGroup($this->prefix . $prefix, $callback);
     }
 
     /**
-     * Adds a route to the collection.
-     *
-     * The syntax used in the `$route` string depends on the used route parser.
-     *
-     * @param string $method The HTTP method of the route.
-     * @param string $route The pattern of the route.
-     * @param mixed $handler The handler of the route.
-     * @param string|null $name [optional] The name of the route.
-     * @return Route Returns the created route.
+     * @inheritDoc
      */
-    public function route(string $method, string $route, $handler, ?string $name = null): Route
+    public function middleware($middleware): self
     {
-        $route = $this->createRoute($method, $this->prefix . $route, $handler, $name);
-        foreach ($this->middlewares as $middleware) {
+        foreach ($this->routes as $route) {
             $route->middleware($middleware);
         }
 
+        foreach ($this->groups as $group) {
+            $group->middleware($middleware);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function route(string $method, string $route, $handler, ?string $name = null): Route
+    {
+        $route = $this->router->route($method, $this->prefix . $route, $handler, $name);
+        $this->routes[] = $route;
         return $route;
     }
 }

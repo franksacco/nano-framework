@@ -45,7 +45,7 @@ class RouteRequestHandler implements RequestHandlerInterface
      * Initialize the route request handler.
      *
      * @param MiddlewareInterface[] $middlewares The middleware list.
-     * @param RequestHandlerInterface $handler The
+     * @param RequestHandlerInterface $handler The higher level request handler.
      */
     public function __construct(array $middlewares, RequestHandlerInterface $handler)
     {
@@ -64,7 +64,7 @@ class RouteRequestHandler implements RequestHandlerInterface
 
         $middleware = $this->middlewares[$this->index];
         if (! $middleware instanceof MiddlewareInterface) {
-            throw new InvalidMiddlewareException('Invalid middleware');
+            throw new InvalidMiddlewareException('Invalid middleware provided');
         }
 
         $this->index++;

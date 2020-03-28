@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Nano\Routing\FastRoute\Result;
 
 /**
- * Class representing a Method-Not-Allowed routing error.
+ * Class representing a Method Not Allowed routing result.
  *
  * @package Nano\Routing
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
@@ -21,12 +21,12 @@ namespace Nano\Routing\FastRoute\Result;
 class MethodNotAllowedResult implements RoutingResultInterface
 {
     /**
-     * @var array
+     * @var string[]
      */
     private $allowedMethod;
 
     /**
-     * @param array $allowedMethod The allowed HTTP method list.
+     * @param string[] $allowedMethod The allowed HTTP method list.
      */
     public function __construct(array $allowedMethod)
     {
@@ -36,7 +36,7 @@ class MethodNotAllowedResult implements RoutingResultInterface
     /**
      * Get the allowed HTTP method list.
      *
-     * @return array
+     * @return string[]
      */
     public function getAllowedMethods(): array
     {

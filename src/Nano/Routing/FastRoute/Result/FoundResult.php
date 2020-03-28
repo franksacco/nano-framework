@@ -38,7 +38,8 @@ class FoundResult implements RoutingResultInterface
     private $params;
 
     /**
-     * @param array $middlewares the list of middlewares of this route.
+     * @param MiddlewareInterface[] $middlewares The list of middlewares
+     *   associated to the route
      * @param mixed $handler The handler associated to the route.
      * @param array $params The parameters associated to the route.
      */
@@ -50,7 +51,7 @@ class FoundResult implements RoutingResultInterface
     }
 
     /**
-     * Get the list of middlewares of this route.
+     * Get the list of middlewares associated to the route.
      *
      * @return MiddlewareInterface[]
      */

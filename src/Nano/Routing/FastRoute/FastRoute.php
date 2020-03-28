@@ -21,6 +21,8 @@ use Psr\Container\ContainerInterface;
 /**
  * Wrapper class for FastRoute routing engine.
  *
+ * @see https://github.com/franksacco/nano-framework/blob/master/docs/routing.md
+ *
  * @package Nano\Routing
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
  */
@@ -44,12 +46,22 @@ class FastRoute
     /**
      * @var array
      */
-    private $dispatchData = [];
+    private $dispatchData;
 
     /**
      * @var array
      */
-    private $reverseData = [];
+    private $reverseData;
+
+    /**
+     * @var bool
+     */
+    private $dataLoaded = false;
+
+    /**
+     * @var UrlGenerator|null
+     */
+    private $urlGenerator;
 
     /**
      * Initialize FastRoute engine.
@@ -84,7 +96,7 @@ class FastRoute
     }
 
     /**
-     * Load routes data by cache or given callback.
+     * Load routing data by cache or the given callback.
      *
      * @param bool $cache [optional] Whether the caching is enabled or not; default: `false`.
      * @param string $cacheDir [optional] The directory where to save cache files.
@@ -128,6 +140,8 @@ class FastRoute
                 );
             }
         }
+
+        $this->dataLoaded = true;
     }
 
     /**
@@ -137,9 +151,15 @@ class FastRoute
      * @param string $path The path of the server request.
      * @return Result\RoutingResultInterface Returns an object representing
      *     the result of the dispatching.
+     *
+     * @throws RoutingException if the routing data has not yet been loaded.
      */
     public function dispatch(string $method, string $path): Result\RoutingResultInterface
     {
+        if (! $this->dataLoaded) {
+            throw RoutingException::forNotLoadedData();
+        }
+
         /** @var Dispatcher $dispatcher */
         $dispatcher = new $this->dispatcherClass($this->dispatchData);
         $routeInfo  = $dispatcher->dispatch($method, $path);
@@ -160,12 +180,21 @@ class FastRoute
     }
 
     /**
-     * Create the url generator from the loaded data.
+     * Get the url generator.
      *
      * @return UrlGenerator Returns the url generator.
+     *
+     * @throws RoutingException if the routing data has not yet been loaded.
      */
     public function getUrlGenerator(): UrlGenerator
     {
-        return new UrlGenerator($this->reverseData);
+        if (! $this->dataLoaded) {
+            throw RoutingException::forNotLoadedData();
+        }
+
+        if ($this->urlGenerator === null) {
+            $this->urlGenerator = new UrlGenerator($this->reverseData);
+        }
+        return $this->urlGenerator;
     }
 }

@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Nano\Routing;
 
 use Laminas\Diactoros\Response\HtmlResponse;
-use League\Container\Exception\NotFoundException;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
@@ -32,12 +32,12 @@ class Dispatcher
     /**
      * The name of the attribute that define the final request handler.
      */
-    const REQUEST_HANDLER_ATTRIBUTE = 'request-handler';
+    const REQUEST_HANDLER_ACTION = 'request_handler_action';
 
     /**
      * The name of the attribute that contains handler parameters.
      */
-    const HANDLER_PARAMS_ATTRIBUTE = 'handler-params';
+    const REQUEST_HANDLER_PARAMS = 'request_handler_params';
 
     /**
      * @var ContainerInterface
@@ -65,12 +65,8 @@ class Dispatcher
      */
     public function dispatch(ServerRequestInterface $request): ResponseInterface
     {
-        $handler = $request->getAttribute(self::REQUEST_HANDLER_ATTRIBUTE);
-        $params  = $request->getAttribute(self::HANDLER_PARAMS_ATTRIBUTE);
-
-        if (! is_callable($handler)) {
-            throw new InvalidRequestHandlerException('Request handler must be callable');
-        }
+        $handler = $request->getAttribute(self::REQUEST_HANDLER_ACTION);
+        $params  = $request->getAttribute(self::REQUEST_HANDLER_PARAMS);
 
         $result = $this->callHandler($handler, is_array($params) ? $params : []);
 
@@ -80,7 +76,19 @@ class Dispatcher
     /**
      * Execute the request handler and return the result.
      *
-     * @param callable $handler The callable request handler.
+     * A valid `$handler` can be any of the following:
+     *  - a string in the format `"class::method"`,
+     *  - a string in the format `"class@method"`,
+     *  - the name of a class implementing `__invoke()` method,
+     *  - an instance of a class implementing `__invoke()` method,
+     *  - an array in the format `["class", "method"]`,
+     *  - an array in the format `[object, "method"]`,
+     *  - the name of a function,
+     *  - a closure (anonymous function).
+     * Each method in the list above is suggested to be non-static, but it can
+     * also be static.
+     *
+     * @param mixed $handler The callable request handler.
      * @param array $params The list of handler parameters.
      * @return mixed Returns the result of execution of the handler.
      *
@@ -89,35 +97,69 @@ class Dispatcher
     private function callHandler($handler, array $params)
     {
         try {
-            if (is_string($handler) && strpos($handler, '::') !== false) {
-                $handler = explode('::', $handler);
+            if (is_string($handler)) {
+                if (strpos($handler, '::') !== false) {
+                    // Handler: "class::method"
+                    $handler = explode('::', $handler);
+
+                } else if (strpos($handler, '@') !== false) {
+                    // Handler: "class@method"
+                    $handler = explode('@', $handler);
+
+                } elseif (! function_exists($handler)) {
+                    // Handler: "class" (with `__invoke()` method)
+                    $handler = $this->resolveClass($handler);
+                }
             }
 
             if (is_array($handler) && isset($handler[0]) && isset($handler[1])) {
+                // Handler: ["class", "method"] or [object, "method"]
                 if (is_string($handler[0])) {
-                    $handler[0] = $this->container->get($handler[0]);
+                    $handler[0] = $this->resolveClass($handler[0]);
                 }
 
                 $reflection = new ReflectionMethod($handler[0], $handler[1]);
-
-                if ($reflection->isStatic()) {
-                    $handler[0] = null;
-                }
-                return $reflection->invokeArgs($handler[0], $params);
+                return $reflection->invokeArgs($reflection->isStatic() ? null : $handler[0], $params);
             }
 
             if (is_object($handler)) {
                 /** @var object $handler */
+                // Handler: object (with `__invoke()` method)
                 $reflection = new ReflectionMethod($handler, '__invoke');
                 return $reflection->invokeArgs($handler, $params);
             }
 
-            $reflection = new ReflectionFunction(\Closure::fromCallable($handler));
-            return $reflection->invokeArgs($params);
+            if (is_callable($handler)) {
+                // Handler: "function" or closure
+                $reflection = new ReflectionFunction(\Closure::fromCallable($handler));
+                return $reflection->invokeArgs($params);
+            }
 
-        } catch (ReflectionException | NotFoundException $e) {
-            throw new InvalidRequestHandlerException('Invalid request handler provided');
+        } catch (ReflectionException | NotFoundExceptionInterface $e) {}
+
+        throw InvalidRequestHandlerException::forInvalidHandler();
+    }
+
+    /**
+     * Resolve a class using the DI container.
+     *
+     * @param string $class The name of the class.
+     * @return object
+     *
+     * @throws InvalidRequestHandlerException if the class cannot be resolved.
+     */
+    private function resolveClass(string $class)
+    {
+        if (! $this->container->has($class)) {
+            throw InvalidRequestHandlerException::forInvalidClass($class);
         }
+
+        $result = $this->container->get($class);
+        if (! is_object($result)) {
+            throw InvalidRequestHandlerException::forNonObject($class);
+        }
+
+        return $result;
     }
 
     /**
@@ -138,10 +180,6 @@ class Dispatcher
             return new HtmlResponse($result);
         }
 
-        throw new InvalidRequestHandlerException(sprintf(
-            "The request handler must produce a %s or a string, got %s instead",
-            ResponseInterface::class,
-            is_object($result) ? get_class($result) : gettype($result)
-        ));
+        throw InvalidRequestHandlerException::forInvalidResult($result);
     }
 }

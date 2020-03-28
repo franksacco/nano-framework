@@ -28,30 +28,41 @@ trait MiddlewareTrait
     /**
      * @var ContainerInterface|null
      */
-    private $container;
+    protected $container;
 
     /**
      * @var MiddlewareInterface[]
      */
-    private $middlewares = [];
+    protected $middlewares = [];
+
+    /**
+     * Get the list of middlewares.
+     *
+     * @return MiddlewareInterface[] Returns the middleware list.
+     */
+    public function getMiddlewares(): array
+    {
+        return $this->middlewares;
+    }
 
     /**
      * Add a middleware to this route.
      *
-     * A middleware can be an instance of {@see MiddlewareInterface}, a
+     * A middleware can be an instance of {@see MiddlewareInterface} or a
      * callable that accepts two arguments:
      *  - {@see ServerRequestInterface}: the PSR-3 server request,
      *  - {@see RequestHandlerInterface}: the PSR-3 request handler,
-     * and returns a {@see ResponseInterface} instance, a classname or a string
-     * that identifies an instance of {@see MiddlewareInterface} from the DI
-     * container.
+     * and returns a {@see ResponseInterface} instance. Alternately, can be a
+     * classname or a string that identifies an instance of
+     * {@see MiddlewareInterface} from the DI container.
      *
      * @param MiddlewareInterface|string|callable $middleware The middleware.
+     * @return self Returns self reference for method chaining.
      *
      * @throws InvalidMiddlewareException if middleware not implements
      *     {@see MiddlewareInterface}.
      */
-    public function middleware($middleware)
+    public function middleware($middleware): self
     {
         if (is_callable($middleware)) {
             $middleware = new CallableMiddleware($middleware);
@@ -73,15 +84,7 @@ trait MiddlewareTrait
             ));
         }
         $this->middlewares[] = $middleware;
-    }
 
-    /**
-     * Get the list of middlewares.
-     *
-     * @return MiddlewareInterface[] Returns the middleware list.
-     */
-    public function getMiddlewares(): array
-    {
-        return $this->middlewares;
+        return $this;
     }
 }

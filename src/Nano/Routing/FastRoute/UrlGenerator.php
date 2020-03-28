@@ -15,8 +15,6 @@ namespace Nano\Routing\FastRoute;
 /**
  * This class provides a path generator from named routes.
  *
- * @see https://github.com/nikic/FastRoute/issues/66
- *
  * @package Nano\Routing
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
  */
@@ -31,7 +29,7 @@ class UrlGenerator
      * Initialize the url generator.
      *
      * The data array must be in the form: `route_name => route_parsed_data`.
-     * Usually, data is taken by `getReverseData()` method from {@see Router}.
+     * Usually, data is taken from `getReverseData()` method from {@see Router}.
      *
      * @param array $data The named routes with parsed data.
      */
