@@ -12,17 +12,24 @@ declare(strict_types=1);
 
 namespace Nano\Config;
 
-use Nano\Utility\DotArrayAccessTrait;
-
 /**
- * Manager for application configuration.
+ * Collector for application configuration items.
  *
  * @package Nano\Config
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
  */
 class Configuration implements ConfigurationInterface
 {
-    use DotArrayAccessTrait;
+    use ArrayDotNotationTrait {
+        hasItem as protected hasConfig;
+        getItem as protected getConfig;
+        setItem as protected setConfig;
+    }
+
+    /**
+     * @var string
+     */
+    protected $prefix = '';
 
     /**
      * @var array
@@ -30,9 +37,9 @@ class Configuration implements ConfigurationInterface
     protected $values = [];
 
     /**
-     * Initialize the configuration values.
+     * Initialize the configuration collector.
      *
-     * @param array $values The configuration list.
+     * @param array $values The configuration item list.
      */
     public function __construct(array $values)
     {
@@ -44,7 +51,11 @@ class Configuration implements ConfigurationInterface
      */
     public function has(string $key): bool
     {
-        return $this->hasItem($this->values, $key);
+        if ($this->prefix !== '') {
+            return $this->hasConfig($this->values, $this->prefix . '.' . $key);
+        }
+
+        return $this->hasConfig($this->values, $key);
     }
 
     /**
@@ -52,30 +63,11 @@ class Configuration implements ConfigurationInterface
      */
     public function get(string $key, $default = null)
     {
-        return $this->getItem($this->values, $key, $default);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function set(string $key, $value)
-    {
-        try {
-            $this->setItem($this->values, $key, $value);
-
-        } catch (\UnexpectedValueException $exception) {
-            throw new UnexpectedValueException('Setting configuration for a non-array value');
+        if ($this->prefix !== '') {
+            return $this->getConfig($this->values, $this->prefix . '.' . $key, $default);
         }
-    }
 
-    /**
-     * @inheritDoc
-     */
-    public function fork(string $key): ConfigurationInterface
-    {
-        $value = $this->get($key, []);
-
-        return new self(is_array($value) ? $value : []);
+        return $this->getConfig($this->values, $key, $default);
     }
 
     /**
@@ -83,6 +75,32 @@ class Configuration implements ConfigurationInterface
      */
     public function all(): array
     {
+        if ($this->prefix !== '') {
+            return $this->getConfig($this->values, $this->prefix, []);
+        }
+
         return $this->values;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function withPrefix(string $prefix): ConfigurationInterface
+    {
+        if (! is_array($this->getConfig($this->values, $prefix))) {
+            throw new InvalidPrefixException('The prefix does not refer to an item of type array');
+        }
+
+        $new = clone $this;
+        $new->prefix = $prefix;
+        return $new;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getPrefix(): string
+    {
+        return $this->prefix;
     }
 }

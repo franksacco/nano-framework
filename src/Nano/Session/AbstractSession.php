@@ -15,7 +15,7 @@ namespace Nano\Session;
 use Nano\Config\ConfigurationInterface;
 use Nano\Session\Exception\ConfigurationException;
 use Nano\Session\Exception\InvalidHandlerException;
-use Nano\Utility\DotArrayAccessTrait;
+use Nano\Config\ArrayDotNotationTrait;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -61,7 +61,7 @@ use SessionHandlerInterface;
  */
 abstract class AbstractSession implements SessionInterface, LoggerAwareInterface
 {
-    use DotArrayAccessTrait, LoggerAwareTrait;
+    use ArrayDotNotationTrait, LoggerAwareTrait;
 
     /**
      * @var ContainerInterface
@@ -103,7 +103,7 @@ abstract class AbstractSession implements SessionInterface, LoggerAwareInterface
                                 ?LoggerInterface $logger = null)
     {
         $this->container = $container;
-        $this->config    = $config->fork('session');
+        $this->config    = $config->withPrefix('session');
 
         $this->handler = $this->parseHandler();
         $this->logger  = $this->config->get('log', false) && $logger ?

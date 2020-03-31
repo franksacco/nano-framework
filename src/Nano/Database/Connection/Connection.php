@@ -60,7 +60,7 @@ class Connection implements ConnectionInterface
      */
     public function __construct(ConfigurationInterface $config)
     {
-        $this->config = $config->fork('database');
+        $this->config = $config->withPrefix('database');
         try {
             $this->pdo = new PDO(
                 $this->config->get('dsn'),

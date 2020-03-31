@@ -15,13 +15,12 @@ namespace Nano\Config;
 use Nano\Error\NanoExceptionInterface;
 
 /**
- * Exception thrown if an argument does not match with the expected value.
+ * Exception thrown when an invalid prefix is provided.
  *
- * @deprecated
  * @package Nano\Config
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
  */
-class UnexpectedValueException extends \UnexpectedValueException implements NanoExceptionInterface
+class InvalidPrefixException extends \RuntimeException implements NanoExceptionInterface
 {
 
 }

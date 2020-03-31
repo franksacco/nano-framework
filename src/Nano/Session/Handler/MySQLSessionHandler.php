@@ -85,7 +85,7 @@ class MySQLSessionHandler implements SessionHandlerInterface,
      */
     public function __construct(ConfigurationInterface $config, ConnectionInterface $connection)
     {
-        $this->config = $config->fork('session.database');
+        $this->config = $config->withPrefix('session.database');
         $this->table  = $config->get('table', 'sessions');
         $this->connection = $connection;
     }

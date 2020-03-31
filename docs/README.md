@@ -4,7 +4,7 @@
 ## Categories
  - Fast bootstrapping
  - Authentication and Authorization
- - Configuration
+ - [Configuration](config.md)
  - Controller
  - [Model (ORM) library](model.md)
  - [Routing library](routing.md)

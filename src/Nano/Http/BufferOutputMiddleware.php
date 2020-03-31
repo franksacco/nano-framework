@@ -38,7 +38,7 @@ class BufferOutputMiddleware implements MiddlewareInterface
      */
     public function __construct(ConfigurationInterface $config)
     {
-        $this->config = $config->fork('output');
+        $this->config = $config->withPrefix('output');
     }
 
     /**

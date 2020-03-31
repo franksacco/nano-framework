@@ -10,17 +10,17 @@
 
 declare(strict_types=1);
 
-namespace Nano\Utility;
+namespace Nano\Config;
 
 use UnexpectedValueException;
 
 /**
- * Helper trait for array access with dot.
+ * Helper trait for access arrays using dot notation.
  *
- * @package Nano\Utility
+ * @package Nano\Config
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
  */
-trait DotArrayAccessTrait
+trait ArrayDotNotationTrait
 {
     /**
      * Check if the key is set in the array.
@@ -44,7 +44,7 @@ trait DotArrayAccessTrait
             $key = substr($key, $lastDot + 1);
         }
 
-        return array_key_exists($key, $array);
+        return is_array($array) ? array_key_exists($key, $array) : false;
     }
 
     /**
@@ -53,7 +53,7 @@ trait DotArrayAccessTrait
      * @param array $array The array.
      * @param string $key The key of the item.
      * @param mixed $default [optional] The default value.
-     * @return mixed Returns item value if set, $default otherwise.
+     * @return mixed Returns item value if set, `$default` otherwise.
      */
     public function getItem(array $array, string $key, $default = null)
     {

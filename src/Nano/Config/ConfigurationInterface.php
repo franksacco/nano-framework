@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Nano\Config;
 
 /**
- * Interface for configuration manager.
+ * Interface for configuration collector.
  *
  * @package Nano\Config
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
@@ -21,54 +21,56 @@ namespace Nano\Config;
 interface ConfigurationInterface
 {
     /**
-     * Check if a configuration value exists.
+     * Check if a configuration item exists.
      *
-     * Use '.' to access array elements.
+     * You can use dot notation to access array elements.
+     * If a prefix is set, it is prepended to `$key`.
      *
-     * @param string $key The key of the value to check.
-     * @return bool Returns `true` if value is set, `false` otherwise.
+     * @param string $key The key of the item to check.
+     * @return bool Returns `true` if the item is set, `false` otherwise.
      */
     public function has(string $key): bool;
 
     /**
-     * Retrieve a configuration value.
+     * Get the specified configuration item.
      *
-     * Use '.' to access array elements.
+     * You can use dot notation to access array elements.
+     * If a prefix is set, it is prepended to `$key`.
      *
-     * @param string $key The key of the value to obtain.
+     * @param string $key The key of the item to obtain.
      * @param mixed $default [optional] The return value when the key is not set.
-     * @return mixed Returns configuration value if set, `$default` otherwise.
+     * @return mixed Returns configuration item if set, `$default` otherwise.
      */
     public function get(string $key, $default = null);
 
     /**
-     * Set a configuration value.
+     * Retrieve all of the configuration items.
      *
-     * Use '.' to access array elements.
+     * If a prefix is set, this method returns all configuration items
+     * associated to it.
      *
-     * @param string $key The of the value to set.
-     * @param mixed $value The configuration value.
-     *
-     * @throws UnexpectedValueException when attempting to set a non-array
-     *   value.
-     */
-    public function set(string $key, $value);
-
-    /**
-     * Create a partition of the configurations.
-     *
-     * Use '.' to access array elements.
-     *
-     * @param string $key The key of an array used for the partition.
-     * @return ConfigurationInterface Returns new instance of this class
-     *   containing the partition defined through the given key.
-     */
-    public function fork(string $key): ConfigurationInterface;
-
-    /**
-     * Retrieve all configuration variables.
-     *
-     * @return array Returns the configuration list.
+     * @return array
      */
     public function all(): array;
+
+    /**
+     * Get the configuration with a fixed prefix.
+     *
+     * You can use dot notation to access array elements.
+     *
+     * @param string $prefix The prefix that refers to an array.
+     * @return ConfigurationInterface Returns a copy of this instance with a
+     *   fixed prefix for the provided keys.
+     *
+     * @throws InvalidPrefixException when the prefix does not refer to an
+     *   element of type array.
+     */
+    public function withPrefix(string $prefix): ConfigurationInterface;
+
+    /**
+     * Get the key prefix for this instance.
+     *
+     * @return string
+     */
+    public function getPrefix(): string;
 }
