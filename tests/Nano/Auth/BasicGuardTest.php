@@ -57,43 +57,43 @@ class BasicGuardTest extends TestCase
         $this->assertSame($expected, $basicGuard->getProvider());
     }
 
-    public function testAuthenticateByUsername()
+    public function testAuthenticateByAuthIdentifier()
     {
         $basicGuard = $this->getMockBuilder(BasicGuard::class)
             ->disableOriginalConstructor()
-            ->setMethodsExcept(['setProvider', 'authenticateByUsername'])
+            ->setMethodsExcept(['setProvider', 'authenticateByAuthIdentifier'])
             ->getMock();
 
         $user = $this->createMock(AuthenticableInterface::class);
 
         $provider = $this->createMock(ProviderInterface::class);
         $provider->expects($this->once())
-            ->method('getUserByName')
+            ->method('getUserByAuthIdentifier')
             ->with('test')
             ->willReturn($user);
 
         $basicGuard->setProvider($provider);
-        $this->assertSame($user, $basicGuard->authenticateByUsername('test'));
+        $this->assertSame($user, $basicGuard->authenticateByAuthIdentifier('test'));
     }
 
-    public function testNotAuthenticatedByUsername()
+    public function testNotAuthenticateByAuthIdentifier()
     {
         $basicGuard = $this->getMockBuilder(BasicGuard::class)
             ->disableOriginalConstructor()
-            ->setMethodsExcept(['setProvider', 'authenticateByUsername'])
+            ->setMethodsExcept(['setProvider', 'authenticateByAuthIdentifier'])
             ->getMock();
 
         $provider = $this->createMock(ProviderInterface::class);
         $provider->expects($this->once())
-            ->method('getUserByName')
+            ->method('getUserByAuthIdentifier')
             ->with('test')
             ->willReturn(null);
         $basicGuard->setProvider($provider);
 
         $this->expectException(NotAuthenticatedException::class);
-        $this->expectExceptionMessage('The user with username "test" does not exist');
+        $this->expectExceptionMessage('The user with identifier "test" does not exist');
 
-        $basicGuard->authenticateByUsername('test');
+        $basicGuard->authenticateByAuthIdentifier('test');
     }
 
     public function testAuthenticateByCredentials()
@@ -104,7 +104,7 @@ class BasicGuardTest extends TestCase
 
         $user = $this->createMock(AuthenticableInterface::class);
         $user->expects($this->once())
-            ->method('getSecret')
+            ->method('getAuthSecret')
             ->willReturn($hashedPassword);
 
         $config = $this->createMock(ConfigurationInterface::class);
@@ -120,7 +120,7 @@ class BasicGuardTest extends TestCase
             ->setMethodsExcept(['authenticateByCredentials'])
             ->getMock();
         $basicGuard->expects($this->once())
-            ->method('authenticateByUsername')
+            ->method('authenticateByAuthIdentifier')
             ->with($username)
             ->willReturn($user);
         $basicGuard->expects($this->once())
@@ -139,7 +139,7 @@ class BasicGuardTest extends TestCase
 
         $user = $this->createMock(AuthenticableInterface::class);
         $user->expects($this->once())
-            ->method('getSecret')
+            ->method('getAuthSecret')
             ->willReturn($hashedPassword);
 
         $config = $this->createMock(ConfigurationInterface::class);
@@ -155,7 +155,7 @@ class BasicGuardTest extends TestCase
             ->setMethodsExcept(['authenticateByCredentials'])
             ->getMock();
         $basicGuard->expects($this->once())
-            ->method('authenticateByUsername')
+            ->method('authenticateByAuthIdentifier')
             ->with($username)
             ->willReturn($user);
         $basicGuard->expects($this->once())

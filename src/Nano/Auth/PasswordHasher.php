@@ -36,7 +36,7 @@ use Nano\Config\ConfigurationInterface;
 class PasswordHasher
 {
     /**
-     * @var int
+     * @var int|string|null
      */
     private $algorithm;
 
@@ -52,16 +52,16 @@ class PasswordHasher
      */
     public function __construct(ConfigurationInterface $config)
     {
-        $this->algorithm = (int) $config->get('passwords.algorithm', PASSWORD_DEFAULT);
+        $this->algorithm = $config->get('passwords.algorithm', PASSWORD_DEFAULT);
         $this->options   = (array) $config->get('passwords.options', []);
     }
 
     /**
      * Get the algorithm used for password hashing.
      *
-     * @return int Returns a password algorithm constant.
+     * @return int|string|null Returns a password algorithm constant.
      */
-    public function getAlgorithm(): int
+    public function getAlgorithm()
     {
         return $this->algorithm;
     }
@@ -69,9 +69,9 @@ class PasswordHasher
     /**
      * Set the hash algorithm used by `password_hash()` function.
      *
-     * @param int $algorithm A password algorithm constant.
+     * @param int|string|null $algorithm A password algorithm constant.
      */
-    public function setAlgorithm(int $algorithm)
+    public function setAlgorithm($algorithm)
     {
         $this->algorithm = $algorithm;
     }
