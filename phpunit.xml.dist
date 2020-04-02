@@ -10,6 +10,9 @@
          processIsolation="false"
          stopOnFailure="false">
     <testsuites>
+        <testsuite name="Auth Unit Tests">
+            <directory>tests/Nano/Auth</directory>
+        </testsuite>
         <testsuite name="Config Unit Tests">
             <directory>tests/Nano/Config</directory>
         </testsuite>

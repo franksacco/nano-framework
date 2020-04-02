@@ -26,14 +26,18 @@ use Psr\Log\LoggerInterface;
 /**
  * Basic HTTP Authentication implemented by a PSR-15 middleware.
  *
- * Basic HTTP Authentication middleware can be configured by `http_basic_auth`
- * configuration key.
+ * Basic HTTP Authentication middleware can be configured in the "auth.php"
+ * configuration file.
+ *
  * Available options for this class are:
- *  - `realm`: the string assigned by the server to identify the protection
+ *
+ * - `realm`: the string assigned by the server to identify the protection
  *   space, default: "Restricted".
- *  - `secure`: perform basic HTTP authentication only through a secure
+ *
+ * - `secure`: perform basic HTTP authentication only through a secure
  *   connection (HTTPS); default: `true`.
- *  - `whitelist`: the list of host that can be authenticated through an
+ *
+ * - `whitelist`: the list of host that can be authenticated through an
  *   insecure channel; default: ['localhost', '127.0.0.1'].
  *
  * @see https://tools.ietf.org/html/rfc7617
@@ -57,7 +61,17 @@ class BasicHttpAuthMiddleware extends AuthMiddleware
     {
         parent::__construct($container, $config, $logger);
 
-        $this->realm = $config->get('http_basic_auth.realm', 'Restricted');
+        $this->realm = $this->getConfig('http_basic.realm', 'Restricted');
+    }
+
+    /**
+     * Get the string assigned by the server to identify the protection space.
+     *
+     * @return string Returns the realm value.
+     */
+    public function getRealm(): string
+    {
+        return $this->realm;
     }
 
     /**
@@ -78,9 +92,9 @@ class BasicHttpAuthMiddleware extends AuthMiddleware
         $scheme = $request->getUri()->getScheme();
         if ($scheme !== 'https') {
             $host      = $request->getUri()->getHost();
-            $whitelist = $this->config->get('http_basic_auth.whitelist', ['localhost', '127.0.0.1']);
+            $whitelist = $this->getConfig('http_basic.whitelist', ['localhost', '127.0.0.1']);
 
-            if ($this->config->get('http_basic_auth.secure', true) &&
+            if ($this->getConfig('http_basic.secure', true) &&
                 !in_array($host, $whitelist)
             ) {
                 throw new UnexpectedValueException('Cannot perform basic HTTP ' .
@@ -99,7 +113,7 @@ class BasicHttpAuthMiddleware extends AuthMiddleware
         }
         list($username, $password) = $credentials;
 
-        return $this->guard->authenticateByCredentials($username, $password);
+        return $this->getGuard()->authenticateByCredentials($username, $password);
     }
 
     /**

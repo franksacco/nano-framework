@@ -30,14 +30,18 @@ use Psr\Http\Server\RequestHandlerInterface;
  * This middleware requires a {@see SessionInterface} instance in the request
  * session attribute to work.
  *
- * Session Authentication middleware can be configured through the
- * `session_auth` key in application settings.
+ * Session authentication middleware can be configured in the "auth.php"
+ * configuration file.
+ *
  * Available options for this class are:
- *  - `expiration`: the time-to-live of session's validity in seconds;
+ *
+ * - `expiration`: the time-to-live of session's validity in seconds;
  *   default: 1200.
- *  - `redirect`: whether to enable redirection when authentication fails;
+ *
+ * - `redirect`: whether to enable redirection when authentication fails;
  *   default: `true`.
- *  - `redirect_path`: the path of the redirection on authentication failure;
+ *
+ * - `redirect_path`: the path of the redirection on authentication failure;
  *   default: '/login'.
  *
  * @package Nano\Auth
@@ -65,9 +69,11 @@ class SessionAuthMiddleware extends AuthMiddleware
             if ($this->isExpired($updated)) {
                 throw new NotAuthenticatedException('Session expired');
             }
+
             $session->set(self::AUTH_SESSION_UPDATED,
                 (new DateTime())->format(self::DATETIME_FORMAT)
             );
+
             return $user;
 
         } catch (NotAuthenticatedException $exception) {
@@ -93,6 +99,7 @@ class SessionAuthMiddleware extends AuthMiddleware
                 SessionInterface::class
             ));
         }
+
         return $session;
     }
 
@@ -110,11 +117,8 @@ class SessionAuthMiddleware extends AuthMiddleware
         if (! is_string($userId)) {
             throw new NotAuthenticatedException('User id not exists in session');
         }
-        $user = $this->guard->getProvider()->getUserById($userId);
-        if ($user === null) {
-            throw new NotAuthenticatedException('Invalid user id stored in session');
-        }
-        return $user;
+
+        return $this->getGuard()->authenticateByAuthIdentifier($userId);
     }
 
     /**
@@ -131,9 +135,11 @@ class SessionAuthMiddleware extends AuthMiddleware
             '!' . self::DATETIME_FORMAT,
             $session->get(self::AUTH_SESSION_UPDATED, '')
         );
+
         if ($updated === false) {
             throw new NotAuthenticatedException('Invalid datetime stored in session');
         }
+
         return $updated;
     }
 
@@ -145,10 +151,11 @@ class SessionAuthMiddleware extends AuthMiddleware
      */
     protected function isExpired(DateTime $updated): bool
     {
-        $expiration = (int) $this->config->get('session_auth.expiration', 1200);
+        $expiration = (int) $this->getConfig('session.expiration', 1200);
         try {
             $updated = (clone $updated)->add(new DateInterval("T{$expiration}S"));
             return $updated < new DateTime();
+
         } catch (\Exception $exception) {
             return false;
         }
@@ -160,11 +167,12 @@ class SessionAuthMiddleware extends AuthMiddleware
     protected function processError(ServerRequestInterface $request,
                                     RequestHandlerInterface $handler): ResponseInterface
     {
-        if ($this->config->get('session_auth.redirect', true)) {
-            $url = $this->config->get('base_url') .
-                $this->config->get('session_auth.redirect_path', '/login');
+        if ($this->getConfig('session.redirect', true)) {
+            $url = $this->getConfig('app.base_url') .
+                $this->getConfig('session.redirect_path', '/login');
             return new RedirectResponse($url);
         }
+
         return $handler->handle($request);
     }
 
@@ -176,7 +184,7 @@ class SessionAuthMiddleware extends AuthMiddleware
      */
     public static function login(SessionInterface $session, AuthenticableInterface $user)
     {
-        $session->set(self::AUTH_SESSION_USER, $user->getId());
+        $session->set(self::AUTH_SESSION_USER, $user->getAuthIdentifier());
         $session->set(self::AUTH_SESSION_UPDATED, date(self::DATETIME_FORMAT));
         $session->regenerate(true);
     }

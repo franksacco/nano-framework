@@ -14,6 +14,7 @@ namespace Nano\Auth;
 
 use Nano\Auth\Exception\NotAuthenticatedException;
 use Nano\Auth\Exception\UnexpectedValueException;
+use Nano\Config\ConfigurationAwareTrait;
 use Nano\Config\ConfigurationInterface;
 use Psr\Container\ContainerInterface;
 
@@ -25,20 +26,17 @@ use Psr\Container\ContainerInterface;
  */
 class BasicGuard implements GuardInterface
 {
+    use ConfigurationAwareTrait;
+
     /**
      * @var ContainerInterface
      */
-    private $container;
-
-    /**
-     * @var ConfigurationInterface
-     */
-    private $config;
+    protected $container;
 
     /**
      * @var ProviderInterface
      */
-    private $provider;
+    protected $provider;
 
     /**
      * Initialize the guard class.
@@ -52,9 +50,33 @@ class BasicGuard implements GuardInterface
     public function __construct(ContainerInterface $container, ConfigurationInterface $config)
     {
         $this->container = $container;
-        $this->config    = $config;
+        $this->setConfiguration($config);
+        $this->provider = $this->getDefaultProvider();
+    }
 
-        $this->setProvider();
+    /**
+     * Resolve the default user provider according to configuration.
+     *
+     * @return ProviderInterface Returns the default user provider.
+     *
+     * @throws UnexpectedValueException if the provider class not implements
+     *     {@see ProviderInterface} interface.
+     */
+    protected function getDefaultProvider(): ProviderInterface
+    {
+        $provider = $this->getConfig('auth.provider');
+        if (is_string($provider) && $this->container->has($provider)) {
+            $provider = $this->container->get($provider);
+        }
+
+        if (! $provider instanceof ProviderInterface) {
+            throw new UnexpectedValueException(sprintf(
+                'User provider set in configuration not implements %s',
+                ProviderInterface::class
+            ));
+        }
+
+        return $provider;
     }
 
     /**
@@ -68,50 +90,40 @@ class BasicGuard implements GuardInterface
     /**
      * @inheritDoc
      */
-    public function setProvider(ProviderInterface $provider = null)
+    public function setProvider(ProviderInterface $provider)
     {
-        if ($provider === null) {
-            $provider = $this->config->get('auth.provider');
-            if (is_string($provider) && $this->container->has($provider)) {
-                $provider = $this->container->get($provider);
-            }
-            if (! $provider instanceof ProviderInterface) {
-                throw new UnexpectedValueException(sprintf(
-                    'User provider must implements %s',
-                    ProviderInterface::class
-                ));
-            }
-        }
         $this->provider = $provider;
     }
 
     /**
      * @inheritDoc
      */
-    public function authenticateByUsername(string $username): AuthenticableInterface
+    public function authenticateByAuthIdentifier(string $identifier): AuthenticableInterface
     {
-        $user = $this->provider->getUserByName($username);
+        $user = $this->provider->getUserByAuthIdentifier($identifier);
         if ($user === null) {
             throw new NotAuthenticatedException(sprintf(
-                'The user with username "%s" does not exist', $username
+                'The user with identifier "%s" does not exist', $identifier
             ));
         }
+
         return $user;
     }
 
     /**
      * @inheritDoc
      */
-    public function authenticateByCredentials(string $username, string $secret): AuthenticableInterface
+    public function authenticateByCredentials(string $identifier, string $secret): AuthenticableInterface
     {
-        $user = $this->authenticateByUsername($username);
+        $user = $this->authenticateByAuthIdentifier($identifier);
 
-        $hasher = new PasswordHasher($this->config);
-        if (! $hasher->check($secret, $user->getSecret())) {
+        $hasher = new PasswordHasher($this->getConfig());
+        if (! $hasher->check($secret, $user->getAuthSecret())) {
             throw new NotAuthenticatedException(sprintf(
-                'Secret provided for user "%s" is not correct', $username
+                'Secret provided for user "%s" is not correct', $identifier
             ));
         }
+
         return $user;
     }
 

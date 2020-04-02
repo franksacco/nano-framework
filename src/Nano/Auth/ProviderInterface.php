@@ -21,25 +21,13 @@ namespace Nano\Auth;
 interface ProviderInterface
 {
     /**
-     * Retrieves a user identified inside the application by the given id.
-     *
-     * Usually the id corresponds with the value of the primary column in the
-     * database user table.
-     *
-     * @param string $id The id of the user.
-     * @return AuthenticableInterface|null Returns the user if exists, `null`
-     *   otherwise.
-     */
-    public function getUserById(string $id): ?AuthenticableInterface;
-
-    /**
      * Retrieves a user identified by the given string.
      *
      * Usually the identifier corresponds with an email or a custom username.
      *
-     * @param string $username The username of the user.
+     * @param string $identifier The user identifier used for authentication.
      * @return AuthenticableInterface|null Returns the user if exists, `null`
      *   otherwise.
      */
-    public function getUserByName(string $username): ?AuthenticableInterface;
+    public function getUserByAuthIdentifier(string $identifier): ?AuthenticableInterface;
 }

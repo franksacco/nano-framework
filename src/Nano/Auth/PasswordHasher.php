@@ -17,14 +17,14 @@ use Nano\Config\ConfigurationInterface;
 /**
  * Helper class for password hashing.
  *
- * Password hashing helper can be configured through the "passwords" key in
- * application settings.
+ * Password hashing can be configured in the "passwords.php" configuration file.
+ *
  * Available options for this class are:
  *
- *  - "algorithm": a password algorithm constant denoting the algorithm to
+ * - "algorithm": a password algorithm constant denoting the algorithm to
  *   use when hashing the password; default: `PASSWORD_DEFAULT`.
  *
- *  - "options": an associative array containing options. See documentation
+ * - "options": an associative array containing options. See documentation
  *   for information on the supported options for each algorithm. If omitted,
  *   the default cost will be used; default: `[]`.
  *
@@ -89,7 +89,7 @@ class PasswordHasher
     }
 
     /**
-     * Set tha hashing options used by `password_hash()` function.
+     * Set the hashing options used by `password_hash()` function.
      *
      * @see https://www.php.net/manual/en/password.constants.php
      *

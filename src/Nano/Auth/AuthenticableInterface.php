@@ -28,20 +28,20 @@ interface AuthenticableInterface
     public function getId(): string;
 
     /**
-     * Get the string that identify the user inside the application.
+     * Get the user identifier used for authentication.
      *
      * For example, the identifier can be an email or a username.
      *
      * @return string Returns the identifier of the user.
      */
-    public function getIdentifier(): string;
+    public function getAuthIdentifier(): string;
 
     /**
-     * Get the user secret used for identification (e.g. password).
+     * Get the user secret used for authentication (e.g. password).
      *
      * The value of the secret can be in plaintext or hashed.
      *
      * @return string Returns the secret of the user.
      */
-    public function getSecret(): string;
+    public function getAuthSecret(): string;
 }

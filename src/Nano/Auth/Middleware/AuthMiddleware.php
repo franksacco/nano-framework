@@ -17,6 +17,7 @@ use Nano\Auth\BasicGuard;
 use Nano\Auth\Exception\NotAuthenticatedException;
 use Nano\Auth\Exception\UnexpectedValueException;
 use Nano\Auth\GuardInterface;
+use Nano\Config\ConfigurationAwareTrait;
 use Nano\Config\ConfigurationInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -36,6 +37,7 @@ use Psr\Log\NullLogger;
  */
 abstract class AuthMiddleware implements MiddlewareInterface, LoggerAwareInterface
 {
+    use ConfigurationAwareTrait;
     use LoggerAwareTrait;
 
     /**
@@ -47,11 +49,6 @@ abstract class AuthMiddleware implements MiddlewareInterface, LoggerAwareInterfa
      * @var ContainerInterface
      */
     protected $container;
-
-    /**
-     * @var ConfigurationInterface
-     */
-    protected $config;
 
     /**
      * @var GuardInterface
@@ -73,37 +70,54 @@ abstract class AuthMiddleware implements MiddlewareInterface, LoggerAwareInterfa
                                 ?LoggerInterface $logger = null)
     {
         $this->container = $container;
-        $this->config    = $config;
-        $this->logger    = $logger ?: new NullLogger();
+        $this->setConfiguration($config->withPrefix('auth.middlewares'));
+        $this->setLogger($logger ?: new NullLogger());
 
-        $this->setGuard();
+        $this->guard = $this->getDefaultGuard();
     }
 
     /**
-     * Set the authentication guard used by this class.
+     * Resolve the default authentication guard according to configuration.
      *
-     * If this method is called without the parameter, the guard class
-     * set in the `auth.guard` configuration key is used.
-     *
-     * @param GuardInterface $guard [optional] The authentication guard.
+     * @return GuardInterface Returns the default authentication guard.
      *
      * @throws UnexpectedValueException if the guard class not implements
      *   {@see GuardInterface} interface.
      */
-    public function setGuard(GuardInterface $guard = null)
+    protected function getDefaultGuard(): GuardInterface
     {
-        if ($guard === null) {
-            $guard = $this->config->get('auth.guard', BasicGuard::class);
-            if (is_string($guard) && $this->container->has($guard)) {
-                $guard = $this->container->get($guard);
-            }
-            if (! $guard instanceof GuardInterface) {
-                throw new UnexpectedValueException(sprintf(
-                    'Authentication guard must implements %s',
-                    GuardInterface::class
-                ));
-            }
+        $guard = $this->config->get('auth.guard', BasicGuard::class);
+        if (is_string($guard) && $this->container->has($guard)) {
+            $guard = $this->container->get($guard);
         }
+
+        if (! $guard instanceof GuardInterface) {
+            throw new UnexpectedValueException(sprintf(
+                'Authentication guard set in configuration not implements %s',
+                GuardInterface::class
+            ));
+        }
+
+        return $guard;
+    }
+
+    /**
+     * Set the authentication guard used by this middleware.
+     *
+     * @return GuardInterface Returns the authentication guard.
+     */
+    public function getGuard(): GuardInterface
+    {
+        return $this->guard;
+    }
+
+    /**
+     * Set the authentication guard used by this middleware.
+     *
+     * @param GuardInterface $guard The authentication guard.
+     */
+    public function setGuard(GuardInterface $guard)
+    {
         $this->guard = $guard;
     }
 
@@ -115,9 +129,9 @@ abstract class AuthMiddleware implements MiddlewareInterface, LoggerAwareInterfa
         try {
             $user = $this->authenticate($request);
 
-            $this->logger->notice(
-                '[AUTH] User "{id}" authenticated',
-                ['id' => $user->getIdentifier()]
+            $this->logger->info(
+                'User "{id}" authenticated',
+                ['id' => $user->getAuthIdentifier()]
             );
             return $handler->handle(
                 $request->withAttribute(self::USER_ATTRIBUTE, $user)
@@ -126,7 +140,7 @@ abstract class AuthMiddleware implements MiddlewareInterface, LoggerAwareInterfa
         } catch (NotAuthenticatedException $exception) {
 
             $this->logger->notice(
-                '[AUTH] User not authenticated: {message}',
+                'User not authenticated: {message}',
                 ['message' => $exception->getMessage()]
             );
             return $this->processError($request, $handler);
@@ -153,6 +167,7 @@ abstract class AuthMiddleware implements MiddlewareInterface, LoggerAwareInterfa
     protected function processError(ServerRequestInterface $request,
                                     RequestHandlerInterface $handler): ResponseInterface
     {
+        // By default, continue the execution of the middleware queue.
         return $handler->handle($request);
     }
 }

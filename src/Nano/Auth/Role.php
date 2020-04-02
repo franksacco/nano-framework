@@ -94,7 +94,7 @@ class Role implements RoleInterface
     public function removePermission(string $name)
     {
         $name = strtolower($name);
-        $key = array_search($name, $this->permissions);
+        $key  = array_search($name, $this->permissions);
         if ($name !== false) {
              unset($this->permissions[$key]);
         }

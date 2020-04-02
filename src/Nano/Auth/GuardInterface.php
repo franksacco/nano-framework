@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Nano\Auth;
 
 use Nano\Auth\Exception\NotAuthenticatedException;
-use Nano\Auth\Exception\UnexpectedValueException;
 
 /**
  * Define rules for user authentication.
@@ -33,39 +32,33 @@ interface GuardInterface
     /**
      * Set the user provider used by this guard.
      *
-     * If this method is called without the parameter, the provider class
-     * set in the "auth.provider" configuration key is used.
-     *
-     * @param ProviderInterface $provider [optional] The user provider.
-     *
-     * @throws UnexpectedValueException if the provider class not implements
-     *     {@see ProviderInterface} interface.
+     * @param ProviderInterface $provider The user provider.
      */
-    public function setProvider(ProviderInterface $provider = null);
+    public function setProvider(ProviderInterface $provider);
 
     /**
-     * Try to authenticate an user with only the given username.
+     * Try to authenticate an user with only the given identifier.
      *
      * Actually, this method does not perform a real authentication but it can
-     * be used to verify that the username corresponds to a valid user.
+     * be used to verify that the identifier corresponds to a valid user.
      *
-     * @param string $username The provided username (e.g. email).
+     * @param string $identifier The provided identifier (e.g. email).
      * @return AuthenticableInterface Returns the user object.
      *
      * @throws NotAuthenticatedException if authentication is not successful.
      */
-    public function authenticateByUsername(string $username): AuthenticableInterface;
+    public function authenticateByAuthIdentifier(string $identifier): AuthenticableInterface;
 
     /**
      * Try to authenticate an user with the given credentials.
      *
-     * @param string $username The provided username (e.g. email).
+     * @param string $identifier The provided identifier (e.g. email).
      * @param string $secret The provided user secret (e.g. password).
      * @return AuthenticableInterface Returns the user object.
      *
      * @throws NotAuthenticatedException if authentication is not successful.
      */
-    public function authenticateByCredentials(string $username, string $secret): AuthenticableInterface;
+    public function authenticateByCredentials(string $identifier, string $secret): AuthenticableInterface;
 
     /**
      * Try to authenticate an user with the given token.

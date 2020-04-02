@@ -29,10 +29,12 @@ use Psr\Log\LoggerInterface;
  * saved in plaintext. This value is used to calculate every time the correct
  * response-challenge in order to compare the response provided by the client.
  *
- * Digest HTTP Authentication middleware can be configured by
- * "http_digest_auth" configuration key.
+ * Digest HTTP Authentication middleware can be configured in the "auth.php"
+ * configuration file.
+ *
  * Available options for this class are:
- *  - `realm`: the string assigned by the server to identify the protection
+ *
+ * - `realm`: the string assigned by the server to identify the protection
  *   space, default: "Restricted".
  *
  * @see https://tools.ietf.org/html/rfc7616
@@ -61,7 +63,17 @@ class DigestHttpAuthMiddleware extends AuthMiddleware
     {
         parent::__construct($container, $config, $logger);
 
-        $this->realm = $config->get('http_digest_auth.realm', 'Restricted');
+        $this->realm = $this->getConfig('http_digest.realm', 'Restricted');
+    }
+
+    /**
+     * Get the string assigned by the server to identify the protection space.
+     *
+     * @return string Returns the realm value.
+     */
+    public function getRealm(): string
+    {
+        return $this->realm;
     }
 
     /**
@@ -72,6 +84,16 @@ class DigestHttpAuthMiddleware extends AuthMiddleware
     public function setRealm(string $realm)
     {
         $this->realm = $realm;
+    }
+
+    /**
+     * Get the nonce value
+     *
+     * @return string Returns the nonce value.
+     */
+    public function getNonce(): string
+    {
+        return $this->realm;
     }
 
     /**
@@ -92,12 +114,13 @@ class DigestHttpAuthMiddleware extends AuthMiddleware
     protected function authenticate(ServerRequestInterface $request): AuthenticableInterface
     {
         $params = $this->parseHeader($request);
-        $user   = $this->guard->authenticateByUsername($params['username']);
+        $user   = $this->getGuard()->authenticateByAuthIdentifier($params['username']);
 
-        $correctResponse = $this->calculateResponse($params, $user->getSecret(), $request->getMethod());
+        $correctResponse = $this->calculateResponse($params, $user->getAuthSecret(), $request->getMethod());
         if ($params['response'] !== $correctResponse) {
             throw new NotAuthenticatedException('The value of response-challenge is not correct');
         }
+
         return $user;
     }
 
@@ -117,8 +140,8 @@ class DigestHttpAuthMiddleware extends AuthMiddleware
         if ($header === '') {
             throw new NotAuthenticatedException('Empty "Authorization" header');
         }
-        $required = ['response', 'username', 'realm', 'uri', 'qop', 'nonce', 'cnonce', 'nc'];
 
+        $required = ['response', 'username', 'realm', 'uri', 'qop', 'nonce', 'cnonce', 'nc'];
         $pattern  = '@(' . implode('|', $required) . ')\s?=\s?"?([^",]+)"?@';
         if (preg_match_all($pattern, $header, $matches) !== count($required)) {
             throw new NotAuthenticatedException('Invalid format of "Authorization" header');
