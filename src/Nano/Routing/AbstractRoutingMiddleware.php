@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace Nano\Routing;
 
+use League\Container\Container;
 use Nano\Config\ConfigurationInterface;
-use Nano\Container\Container;
 use Nano\Routing\FastRoute\FastRoute;
 use Nano\Routing\FastRoute\Result;
 use Nano\Routing\FastRoute\Router;

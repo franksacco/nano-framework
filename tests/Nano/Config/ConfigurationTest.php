@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Nano\Config;
 
+use Nano\Config\InvalidPrefixException;
 use PHPUnit\Framework\TestCase;
 
 class ConfigurationTest extends TestCase

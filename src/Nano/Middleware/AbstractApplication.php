@@ -13,8 +13,15 @@ declare(strict_types=1);
 namespace Nano\Middleware;
 
 use Laminas\Diactoros\ServerRequestFactory;
-use Nano\Container\Container;
-use Nano\Container\InvalidContainerException;
+use League\Container\Container;
+use League\Container\ContainerAwareTrait;
+use League\Container\ReflectionContainer;
+use Nano\Container\ConfigurationsServiceProvider;
+use Nano\Container\DatabaseServiceProvider;
+use Nano\Container\EnvironmentServiceProvider;
+use Nano\Container\ErrorResponseFactoryServiceProvider;
+use Nano\Container\LoggerServiceProvider;
+use Nano\Container\TwigServiceProvider;
 use Nano\Routing\Dispatcher;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -30,52 +37,67 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 abstract class AbstractApplication implements MiddlewareInterface
 {
+    use ContainerAwareTrait;
+
     /**
-     * @var ContainerInterface
+     * @var string
      */
-    private $container;
+    protected $rootPath;
 
     /**
      * Initialize the application.
      *
-     * @param array|ContainerInterface $container [optional] The application
-     *   settings or a {@see ContainerInterface} instance.
+     * @param string $rootPath The root path of the application.
+     * @param ContainerInterface $container [optional] The DI container that
+     *   overrides the default League's {@see Container}.
      */
-    public function __construct($container = [])
+    public function __construct(string $rootPath, ContainerInterface $container = null)
     {
-        if (is_array($container)) {
-            $container = new Container($container);
-        }
+        $this->rootPath = rtrim($rootPath, DIRECTORY_SEPARATOR);
+        $container = $container ?: new Container();
 
-        if (! $container instanceof ContainerInterface) {
-            throw new InvalidContainerException(printf(
-                'The application expects a %s instance, got %s',
-                ContainerInterface::class,
-                is_object($container) ? get_class($container) : gettype($container)
-            ));
+        if ($container instanceof Container) {
+            // Enable auto wiring.
+            $container->delegate(
+                (new ReflectionContainer())->cacheResolutions(true)
+            );
+            // Share container itself.
+            $container->share(ContainerInterface::class, $container);
+            $this->setLeagueContainer($container);
+
+        } else {
+            $this->setContainer($container);
         }
-        $this->container = $container;
 
         $this->onBoot();
     }
 
     /**
-     * Retrieve the DI container of the application.
+     * Listener method for application boot event.
      *
-     * @return ContainerInterface Returns the container instance.
+     * This method can be overwritten in order to personalize actions executed
+     * on bootstrap, such as service provider definitions.
      */
-    public function getContainer(): ContainerInterface
+    protected function onBoot()
     {
-        return $this->container;
+        $this->getLeagueContainer()
+            ->addServiceProvider(new EnvironmentServiceProvider($this->getRootPath()))
+            ->addServiceProvider(new ConfigurationsServiceProvider($this->getRootPath()))
+            ->addServiceProvider(LoggerServiceProvider::class)
+            ->addServiceProvider(ErrorResponseFactoryServiceProvider::class)
+            ->addServiceProvider(DatabaseServiceProvider::class)
+            ->addServiceProvider(TwigServiceProvider::class);
     }
 
     /**
-     * Listener method for application boot event.
+     * Get the root path of the application.
      *
-     * This method can be overwritten in order to execute some code each time
-     * the application is booted.
+     * @return string
      */
-    protected function onBoot() {}
+    public function getRootPath(): string
+    {
+        return $this->rootPath;
+    }
 
     /**
      * Setup the middlewares queue of the application.
