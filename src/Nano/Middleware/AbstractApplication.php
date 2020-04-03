@@ -14,6 +14,7 @@ namespace Nano\Middleware;
 
 use Laminas\Diactoros\ServerRequestFactory;
 use League\Container\Container;
+use League\Container\ContainerAwareInterface;
 use League\Container\ContainerAwareTrait;
 use League\Container\ReflectionContainer;
 use Nano\Container\ConfigurationsServiceProvider;
@@ -35,7 +36,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  * @package Nano\Middleware
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
  */
-abstract class AbstractApplication implements MiddlewareInterface
+abstract class AbstractApplication implements ContainerAwareInterface, MiddlewareInterface
 {
     use ContainerAwareTrait;
 
