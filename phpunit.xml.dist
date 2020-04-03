@@ -19,6 +19,9 @@
         <testsuite name="Container Unit Tests">
             <directory>tests/Nano/Container</directory>
         </testsuite>
+        <testsuite name="Middleware Unit Tests">
+            <directory>tests/Nano/Middleware</directory>
+        </testsuite>
         <testsuite name="Routing Unit Tests">
             <directory>tests/Nano/Routing</directory>
         </testsuite>

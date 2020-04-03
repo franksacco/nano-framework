@@ -118,8 +118,9 @@ abstract class AbstractApplication implements ContainerAwareInterface, Middlewar
      * @param ServerRequestInterface $request [optional] The server request.
      *   If set, this request overwrites the creation of a request from
      *   superglobal values.
+     * @return ResponseInterface Returns the server response.
      */
-    public function run(ServerRequestInterface $request = null)
+    public function run(ServerRequestInterface $request = null): ResponseInterface
     {
         $request = $request ?: ServerRequestFactory::fromGlobals();
 
@@ -127,8 +128,7 @@ abstract class AbstractApplication implements ContainerAwareInterface, Middlewar
         $this->middleware($queue);
         $queue->add($this);
 
-        $runner = new Runner($queue);
-        $runner->handle($request);
+        return (new Runner($queue))->handle($request);
     }
 
     /**

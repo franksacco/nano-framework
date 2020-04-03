@@ -28,7 +28,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 class MiddlewareQueue implements Countable
 {
     /**
-     * @var ContainerInterface|null
+     * @var ContainerInterface
      */
     private $container;
 
@@ -40,54 +40,11 @@ class MiddlewareQueue implements Countable
     /**
      * Initialize the middleware queue.
      *
-     * @param ContainerInterface|null $container [optional] The DI container.
+     * @param ContainerInterface $container The DI container.
      */
-    public function __construct(?ContainerInterface $container = null)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-    }
-
-    /**
-     * Append a middleware to the end of the queue.
-     *
-     * A middleware can be an instance of {@see MiddlewareInterface}, a
-     * callable that accepts two arguments:
-     *  - {@see ServerRequestInterface}: the PSR-3 server request,
-     *  - {@see RequestHandlerInterface}: the PSR-3 request handler,
-     * and returns a {@see ResponseInterface} instance, a classname or a string
-     * that identifies an instance of {@see MiddlewareInterface} from the DI
-     * container.
-     *
-     * @param MiddlewareInterface|string|callable $middleware The middleware.
-     * @return self Return self reference for method chaining.
-     *
-     * @throws InvalidMiddlewareException if middleware not implements
-     *   MiddlewareInterface.
-     */
-    public function add($middleware): self
-    {
-        if (is_callable($middleware)) {
-            $middleware = new CallableMiddleware($middleware);
-
-        } else if (is_string($middleware)) {
-            if ($this->container === null && class_exists($middleware)) {
-                $middleware = new $middleware;
-
-            } else if ($this->container !== null && $this->container->has($middleware)) {
-                $middleware = $this->container->get($middleware);
-            }
-        }
-
-        if (! $middleware instanceof MiddlewareInterface) {
-            throw new InvalidMiddlewareException(sprintf(
-                "Middleware must implements %s, got %s instead",
-                MiddlewareInterface::class,
-                is_object($middleware) ? get_class($middleware) : gettype($middleware)
-            ));
-        }
-
-        $this->queue[] = $middleware;
-        return $this;
     }
 
     /**
@@ -110,5 +67,43 @@ class MiddlewareQueue implements Countable
     public function count(): int
     {
         return count($this->queue);
+    }
+
+    /**
+     * Append a middleware to the end of the queue.
+     *
+     * A middleware can be an instance of {@see MiddlewareInterface} or a
+     * callable that accepts two arguments:
+     *  - {@see ServerRequestInterface}: the PSR-3 server request,
+     *  - {@see RequestHandlerInterface}: the PSR-3 request handler,
+     * and returns a {@see ResponseInterface} instance. Alternately, can be a
+     * classname or a string that identifies an instance of
+     * {@see MiddlewareInterface} from the DI container.
+     *
+     * @param MiddlewareInterface|string|callable $middleware The middleware.
+     * @return self Returns self reference for method chaining.
+     *
+     * @throws InvalidMiddlewareException if middleware not implements
+     *   {@see MiddlewareInterface}.
+     */
+    public function add($middleware): self
+    {
+        if (is_callable($middleware)) {
+            $middleware = new CallableMiddleware($middleware);
+
+        } else if (is_string($middleware) && $this->container->has($middleware)) {
+            $middleware = $this->container->get($middleware);
+        }
+
+        if (! $middleware instanceof MiddlewareInterface) {
+            throw new InvalidMiddlewareException(sprintf(
+                'Middleware must implements %s, got %s instead',
+                MiddlewareInterface::class,
+                is_object($middleware) ? get_class($middleware) : gettype($middleware)
+            ));
+        }
+
+        $this->queue[] = $middleware;
+        return $this;
     }
 }
