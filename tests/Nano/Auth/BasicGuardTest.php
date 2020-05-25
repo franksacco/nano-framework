@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Nano\Auth;
 
 use Nano\Auth\Exception\NotAuthenticatedException;
+use Nano\Auth\Exception\UnexpectedValueException;
 use Nano\Config\ConfigurationInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -42,6 +43,21 @@ class BasicGuardTest extends TestCase
 
         $basicGuard = new BasicGuard($container, $config);
         $this->assertSame($provider, $basicGuard->getProvider());
+    }
+
+    public function testInvalidProvider()
+    {
+        $container = $this->createMock(ContainerInterface::class);
+        $config = $this->createMock(ConfigurationInterface::class);
+        $config->expects($this->once())
+            ->method('get')
+            ->with('auth.provider')
+            ->willReturn(null);
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('User provider set in configuration not implements Nano\Auth\ProviderInterface');
+
+        new BasicGuard($container, $config);
     }
 
     public function testSetProvider()

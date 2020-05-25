@@ -91,11 +91,11 @@ class RoleEntity extends Entity implements RoleInterface
      */
     public function hasPermission(string $permission): bool
     {
-        if (in_array(strtolower($permission), $this->permissions)) {
+        if (in_array(strtolower($permission), $this->__get('permissions'))) {
             return true;
         }
 
-        foreach ($this->parents as $parent) {
+        foreach ($this->__get('parents')->toArray() as $parent) {
             if ($parent->hasPermission($permission)) {
                 return true;
             }
@@ -114,11 +114,11 @@ class RoleEntity extends Entity implements RoleInterface
     public function addPermission(string $name)
     {
         $name = strtolower($name);
-        $permissions = $this->permissions;
+        $permissions = $this->__get('permissions');
 
         if (! in_array($name, $permissions)) {
             $permissions[] = $name;
-            $this->permissions = $permissions;
+            $this->__set('permissions', $permissions);
         }
     }
 
@@ -132,12 +132,12 @@ class RoleEntity extends Entity implements RoleInterface
     public function removePermission(string $name)
     {
         $name = strtolower($name);
-        $permissions = $this->permissions;
+        $permissions = $this->__get('permissions');
         $key = array_search($name, $permissions);
 
         if ($name !== false) {
             unset($permissions[$key]);
-            $this->permissions = $permissions;
+            $this->__set('permissions', $permissions);
         }
     }
 
@@ -149,18 +149,18 @@ class RoleEntity extends Entity implements RoleInterface
      */
     protected function hasParent(RoleEntity $role): bool
     {
-        foreach ($this->parents as $parent) {
+        $parents = $this->__get('parents')->toArray();
+
+        foreach ($parents as $parent) {
             if ($parent->getId() == $role->getId()) {
                 return true;
             }
         }
-
-        foreach ($this->parents as $parent) {
+        foreach ($parents as $parent) {
             if ($parent->hasParent($role)) {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -183,7 +183,7 @@ class RoleEntity extends Entity implements RoleInterface
             throw new InvalidRoleException('Parent role creates a recursive hierarchy');
         }
 
-        $this->parents->add($parent);
+        $this->__get('parents')->add($parent);
     }
 
     /**
@@ -200,7 +200,7 @@ class RoleEntity extends Entity implements RoleInterface
             ));
         }
 
-        $this->parents->remove($parent);
+        $this->__get('parents')->remove($parent);
     }
 
     /**
@@ -208,6 +208,6 @@ class RoleEntity extends Entity implements RoleInterface
      */
     public function getParents(): array
     {
-        return $this->parents->toArray();
+        return $this->__get('parents')->toArray();
     }
 }
