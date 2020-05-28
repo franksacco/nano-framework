@@ -5,6 +5,7 @@ on:
     branches:
       - master
     paths:
+      - .github/workflows/**
       - src/**
       - tests/**
 
@@ -14,6 +15,8 @@ jobs:
     strategy:
       matrix:
         php-versions: ['7.2', '7.3', '7.4']
+      fail-fast: false
+
     name: PHP ${{ matrix.php-versions }} Test
 
     steps:

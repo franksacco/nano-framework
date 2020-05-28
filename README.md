@@ -3,6 +3,7 @@
 <p align="center">
 <a href="https://github.com/franksacco/nano-framework/actions"><img src="https://github.com/franksacco/nano-framework/workflows/PHPUnit%20Tests/badge.svg" alt="Build Status"></a>
 <a href="https://packagist.org/packages/franksacco/nano-framework"><img src="https://poser.pugx.org/franksacco/nano-framework/v" alt="Latest Stable Version"></a>
+<a href="#requirements"><img src="https://img.shields.io/badge/PHP-%3E%3D%207.2-8892BF" alt="PHP Versions Supported"></a>
 <a href="./LICENSE.md"><img src="https://poser.pugx.org/franksacco/nano-framework/license" alt="License"></a>
 </p>
 
@@ -43,9 +44,12 @@ $app->run();
 ```
 That's it. Now you have to implement the logic of your application.
 
-## Documentation
-> :warning: Documentation is under development.
+## Requirements
+ - PHP >= 7.2
+ - JSON PHP Extension
+ - PDO PHP Extension
 
+## Documentation
 Documentation for this project is available in the [docs folder](docs/README.md).
 
 ## License
