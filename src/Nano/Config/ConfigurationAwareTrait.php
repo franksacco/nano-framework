@@ -54,7 +54,7 @@ trait ConfigurationAwareTrait
      * If `$key` is not set, this method returns the configuration manager.
      * You can use dot notation to access array elements.
      *
-     * @param string $key [optional] The key of the item to obtain.
+     * @param string|null $key [optional] The key of the item to obtain.
      * @param mixed $default [optional] The return value when the key is not set.
      * @return ConfigurationInterface|mixed Returns configuration item if set,
      *   `$default` otherwise.
