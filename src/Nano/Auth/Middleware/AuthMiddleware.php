@@ -32,6 +32,12 @@ use Psr\Log\NullLogger;
 /**
  * Abstract implementation of an authentication middleware.
  *
+ * This middleware can be configured through the configuration instance
+ * provided to the constructor. Available options for this class are:
+ *
+ * - `guard`: the class that defines rules for user authentication
+ *   implementing {@see GuardInterface}; default: {@see BasicGuard}.
+ *
  * @package Nano\Auth
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
  */
@@ -51,7 +57,7 @@ abstract class AuthMiddleware implements MiddlewareInterface, LoggerAwareInterfa
     protected $container;
 
     /**
-     * @var GuardInterface
+     * @var GuardInterface|null
      */
     protected $guard;
 
@@ -59,21 +65,16 @@ abstract class AuthMiddleware implements MiddlewareInterface, LoggerAwareInterfa
      * Initialize the authentication middleware.
      *
      * @param ContainerInterface $container The DI container.
-     * @param ConfigurationInterface $config The application configuration.
-     * @param LoggerInterface $logger [optional] The PSR-3 logger instance.
-     *
-     * @throws UnexpectedValueException if the guard class not implements
-     *   {@see GuardInterface} interface.
+     * @param ConfigurationInterface $config The authentication configuration.
+     * @param LoggerInterface|null $logger [optional] The PSR-3 logger instance.
      */
     public function __construct(ContainerInterface $container,
                                 ConfigurationInterface $config,
-                                ?LoggerInterface $logger = null)
+                                LoggerInterface $logger = null)
     {
         $this->container = $container;
-        $this->setConfiguration($config->withPrefix('auth.middlewares'));
+        $this->setConfiguration($config);
         $this->setLogger($logger ?: new NullLogger());
-
-        $this->guard = $this->getDefaultGuard();
     }
 
     /**
@@ -86,7 +87,7 @@ abstract class AuthMiddleware implements MiddlewareInterface, LoggerAwareInterfa
      */
     protected function getDefaultGuard(): GuardInterface
     {
-        $guard = $this->config->get('auth.guard', BasicGuard::class);
+        $guard = $this->config->get('guard', BasicGuard::class);
         if (is_string($guard) && $this->container->has($guard)) {
             $guard = $this->container->get($guard);
         }
@@ -97,17 +98,24 @@ abstract class AuthMiddleware implements MiddlewareInterface, LoggerAwareInterfa
                 GuardInterface::class
             ));
         }
-
         return $guard;
     }
 
     /**
-     * Set the authentication guard used by this middleware.
+     * Get the authentication guard used by this middleware.
+     *
+     * If not set, the guard will be resolved according to configuration.
      *
      * @return GuardInterface Returns the authentication guard.
+     *
+     * @throws UnexpectedValueException if the guard class not implements
+     *   {@see GuardInterface} interface.
      */
     public function getGuard(): GuardInterface
     {
+        if ($this->guard === null) {
+            $this->guard = $this->getDefaultGuard();
+        }
         return $this->guard;
     }
 
@@ -116,7 +124,7 @@ abstract class AuthMiddleware implements MiddlewareInterface, LoggerAwareInterfa
      *
      * @param GuardInterface $guard The authentication guard.
      */
-    public function setGuard(GuardInterface $guard)
+    public function setGuard(GuardInterface $guard): void
     {
         $this->guard = $guard;
     }
@@ -130,9 +138,10 @@ abstract class AuthMiddleware implements MiddlewareInterface, LoggerAwareInterfa
             $user = $this->authenticate($request);
 
             $this->logger->info(
-                'User "{id}" authenticated',
-                ['id' => $user->getAuthIdentifier()]
-            );
+                'User {id} authenticated using identifier "{auth}"', [
+                    'id'   => $user->getId(),
+                    'auth' => $user->getAuthIdentifier()
+            ]);
             return $handler->handle(
                 $request->withAttribute(self::USER_ATTRIBUTE, $user)
             );

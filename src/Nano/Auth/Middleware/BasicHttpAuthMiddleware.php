@@ -16,29 +16,27 @@ use Laminas\Diactoros\Response\EmptyResponse;
 use Nano\Auth\Exception\NotAuthenticatedException;
 use Nano\Auth\AuthenticableInterface;
 use Nano\Auth\Exception\UnexpectedValueException;
-use Nano\Config\ConfigurationInterface;
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Basic HTTP Authentication implemented by a PSR-15 middleware.
  *
- * Basic HTTP Authentication middleware can be configured in the "auth.php"
- * configuration file.
+ * This middleware can be configured through the configuration instance
+ * provided to the constructor. Available options for this class are:
  *
- * Available options for this class are:
+ * - `guard`: the class that defines rules for user authentication
+ *   implementing {@see GuardInterface}; default: {@see BasicGuard}.
  *
- * - `realm`: the string assigned by the server to identify the protection
- *   space, default: "Restricted".
+ * - `http_basic.realm`: the string assigned by the server to identify the
+ *   protection space, default: "Restricted".
  *
- * - `secure`: perform basic HTTP authentication only through a secure
- *   connection (HTTPS); default: `true`.
+ * - `http_basic.secure`: perform basic HTTP authentication only through a
+ *   secure connection (HTTPS); default: `true`.
  *
- * - `whitelist`: the list of host that can be authenticated through an
- *   insecure channel; default: ['localhost', '127.0.0.1'].
+ * - `http_basic.allowlist`: the list of host that can be authenticated through
+ *   an insecure channel; default: `['localhost', '127.0.0.1']`.
  *
  * @see https://tools.ietf.org/html/rfc7617
  *
@@ -48,29 +46,22 @@ use Psr\Log\LoggerInterface;
 class BasicHttpAuthMiddleware extends AuthMiddleware
 {
     /**
-     * @var string
+     * @var string|null
      */
     private $realm;
 
     /**
-     * @inheritDoc
-     */
-    public function __construct(ContainerInterface $container,
-                                ConfigurationInterface $config,
-                                LoggerInterface $logger = null)
-    {
-        parent::__construct($container, $config, $logger);
-
-        $this->realm = $this->getConfig('http_basic.realm', 'Restricted');
-    }
-
-    /**
      * Get the string assigned by the server to identify the protection space.
+     *
+     * If not set, the realm will be resolved according to configuration.
      *
      * @return string Returns the realm value.
      */
     public function getRealm(): string
     {
+        if ($this->realm === null) {
+            $this->realm = $this->getConfig('http_basic.realm', 'Restricted');
+        }
         return $this->realm;
     }
 
@@ -92,10 +83,10 @@ class BasicHttpAuthMiddleware extends AuthMiddleware
         $scheme = $request->getUri()->getScheme();
         if ($scheme !== 'https') {
             $host      = $request->getUri()->getHost();
-            $whitelist = $this->getConfig('http_basic.whitelist', ['localhost', '127.0.0.1']);
+            $allowlist = $this->getConfig('http_basic.allowlist', ['localhost', '127.0.0.1']);
 
             if ($this->getConfig('http_basic.secure', true) &&
-                !in_array($host, $whitelist)
+                !in_array($host, $allowlist)
             ) {
                 throw new UnexpectedValueException('Cannot perform basic HTTP ' .
                     'authentication through an insecure channel');
@@ -124,6 +115,7 @@ class BasicHttpAuthMiddleware extends AuthMiddleware
     {
         return (new EmptyResponse())
             ->withStatus(401)
-            ->withHeader('WWW-Authenticate', sprintf('Basic realm="%s"', $this->realm));
+            ->withHeader('WWW-Authenticate',
+                sprintf('Basic realm="%s", charset="UTF-8"', $this->getRealm()));
     }
 }

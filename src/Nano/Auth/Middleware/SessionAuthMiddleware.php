@@ -25,24 +25,25 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
- * Session Authentication implemented by a PSR-15 middleware.
+ * Session authentication implemented by a PSR-15 middleware.
  *
  * This middleware requires a {@see SessionInterface} instance in the request
  * session attribute to work.
  *
- * Session authentication middleware can be configured in the "auth.php"
- * configuration file.
+ * This middleware can be configured through the configuration instance
+ * provided to the constructor. Available options for this class are:
  *
- * Available options for this class are:
+ * - `guard`: the class that defines rules for user authentication
+ *   implementing {@see GuardInterface}; default: {@see BasicGuard}.
  *
- * - `expiration`: the time-to-live of session's validity in seconds;
+ * - `session.expiration`: the Time-To-Live of session's validity in seconds;
  *   default: 1200.
  *
- * - `redirect`: whether to enable redirection when authentication fails;
- *   default: `true`.
+ * - `session.redirect`: whether to enable redirection when authentication
+ *   fails; default: `true`.
  *
- * - `redirect_path`: the path of the redirection on authentication failure;
- *   default: '/login'.
+ * - `session.redirect_path`: the path of the redirection on authentication
+ *   failure; default: '/login'.
  *
  * @package Nano\Auth
  * @author  Francesco Saccani <saccani.francesco@gmail.com>
@@ -51,8 +52,8 @@ class SessionAuthMiddleware extends AuthMiddleware
 {
     protected const DATETIME_FORMAT = 'Y-m-d H:i:s';
 
-    protected const AUTH_SESSION_USER    = 'auth-session-user';
-    protected const AUTH_SESSION_UPDATED = 'auth-session-updated';
+    public const AUTH_SESSION_USER    = 'auth_session_user';
+    public const AUTH_SESSION_UPDATED = 'auth_session_updated';
 
     /**
      * @inheritDoc
@@ -95,7 +96,7 @@ class SessionAuthMiddleware extends AuthMiddleware
         $session = $request->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
         if (! $session instanceof SessionInterface) {
             throw new UnexpectedValueException(sprintf(
-                'Auth middleware error: %s instance required',
+                '%s instance required in server request',
                 SessionInterface::class
             ));
         }
@@ -113,12 +114,12 @@ class SessionAuthMiddleware extends AuthMiddleware
      */
     protected function parseUser(SessionInterface $session): AuthenticableInterface
     {
-        $userId = $session->get(self::AUTH_SESSION_USER);
-        if (! is_string($userId)) {
-            throw new NotAuthenticatedException('User id not exists in session');
+        $identifier = $session->get(self::AUTH_SESSION_USER);
+        if (! is_string($identifier)) {
+            throw new NotAuthenticatedException('User identifier not exists in session');
         }
 
-        return $this->getGuard()->authenticateByAuthIdentifier($userId);
+        return $this->getGuard()->authenticateByAuthIdentifier($identifier);
     }
 
     /**
@@ -153,11 +154,11 @@ class SessionAuthMiddleware extends AuthMiddleware
     {
         $expiration = (int) $this->getConfig('session.expiration', 1200);
         try {
-            $updated = (clone $updated)->add(new DateInterval("T{$expiration}S"));
+            $updated = (clone $updated)->add(new DateInterval("PT{$expiration}S"));
             return $updated < new DateTime();
 
         } catch (\Exception $exception) {
-            return false;
+            return true;
         }
     }
 

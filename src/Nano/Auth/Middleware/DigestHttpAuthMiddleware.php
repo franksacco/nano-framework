@@ -15,12 +15,10 @@ namespace Nano\Auth\Middleware;
 use Laminas\Diactoros\Response\EmptyResponse;
 use Nano\Auth\AuthenticableInterface;
 use Nano\Auth\Exception\NotAuthenticatedException;
-use Nano\Config\ConfigurationInterface;
-use Psr\Container\ContainerInterface;
+use Nano\Auth\Exception\UnexpectedValueException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Digest HTTP Authentication implemented by a PSR-15 middleware.
@@ -29,13 +27,14 @@ use Psr\Log\LoggerInterface;
  * saved in plaintext. This value is used to calculate every time the correct
  * response-challenge in order to compare the response provided by the client.
  *
- * Digest HTTP Authentication middleware can be configured in the "auth.php"
- * configuration file.
+ * This middleware can be configured through the configuration instance
+ * provided to the constructor. Available options for this class are:
  *
- * Available options for this class are:
+ * - `guard`: the class that defines rules for user authentication
+ *   implementing {@see GuardInterface}; default: {@see BasicGuard}.
  *
- * - `realm`: the string assigned by the server to identify the protection
- *   space, default: "Restricted".
+ * - `http_digest.realm`: the string assigned by the server to identify the
+ *   protection space, default: "Restricted".
  *
  * @see https://tools.ietf.org/html/rfc7616
  *
@@ -45,34 +44,55 @@ use Psr\Log\LoggerInterface;
 class DigestHttpAuthMiddleware extends AuthMiddleware
 {
     /**
-     * @var string
+     * The MD5 hashing algorithm.
+     *
+     * To maintain backward compatibility with
+     * <a href="https://tools.ietf.org/html/rfc2617">RFC2617</a>, the MD5
+     * algorithm is still supported but NOT RECOMMENDED.
+     */
+    public const ALGORITHM_MD5 = 'md5';
+    /**
+     * The SHA-256 hashing algorithm.
+     */
+    public const ALGORITHM_SHA256 = 'sha256';
+    /**
+     * The SHA-512/256 hashing algorithm.
+     */
+    public const ALGORITHM_SHA512256 = 'sha512/256';
+
+    private const AVAILABLE_ALGORITHMS = [
+        self::ALGORITHM_MD5,
+        self::ALGORITHM_SHA256,
+        self::ALGORITHM_SHA512256
+    ];
+
+    /**
+     * @var string|null
      */
     private $realm;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $nonce;
 
     /**
-     * @inheritDoc
+     * @var string
      */
-    public function __construct(ContainerInterface $container,
-                                ConfigurationInterface $config,
-                                LoggerInterface $logger = null)
-    {
-        parent::__construct($container, $config, $logger);
-
-        $this->realm = $this->getConfig('http_digest.realm', 'Restricted');
-    }
+    private $algorithm = self::ALGORITHM_SHA256;
 
     /**
      * Get the string assigned by the server to identify the protection space.
+     *
+     * If not set, the realm will be resolved according to configuration.
      *
      * @return string Returns the realm value.
      */
     public function getRealm(): string
     {
+        if ($this->realm === null) {
+            $this->realm = $this->getConfig('http_digest.realm', 'Restricted');
+        }
         return $this->realm;
     }
 
@@ -81,31 +101,64 @@ class DigestHttpAuthMiddleware extends AuthMiddleware
      *
      * @param string $realm The realm value.
      */
-    public function setRealm(string $realm)
+    public function setRealm(string $realm): void
     {
         $this->realm = $realm;
     }
 
     /**
-     * Get the nonce value
+     * Get the nonce value.
+     *
+     * If not set, the {@see uniqid()} function is used instead.
      *
      * @return string Returns the nonce value.
      */
     public function getNonce(): string
     {
-        return $this->realm;
+        if ($this->nonce === null) {
+            $this->nonce = uniqid();
+        }
+        return $this->nonce;
     }
 
     /**
      * Set the nonce value.
      *
-     * If not set, the {@see uniqid()} function is used instead.
-     *
      * @param string $nonce The nonce value.
      */
-    public function setNonce(string $nonce)
+    public function setNonce(string $nonce): void
     {
         $this->nonce = $nonce;
+    }
+
+    /**
+     * Get the algorithm used for the challenge for hashing.
+     *
+     * If not set, the default hashing algorithm is
+     * {@see DigestHttpAuthMiddleware::ALGORITHM_SHA256}.
+     *
+     * @return string Returns the algorithm using the
+     *     <code>DigestHttpAuthMiddleware::ALGORITHM_*</code> constants.
+     */
+    public function getAlgorithm(): string
+    {
+        return $this->algorithm;
+    }
+
+    /**
+     * Set the algorithm used for the challenge.
+     *
+     * @param string $algorithm The algorithm using the
+     *     <code>DigestHttpAuthMiddleware::ALGORITHM_*</code> constants.
+     *
+     * @throws UnexpectedValueException if the algorithm is not valid.
+     */
+    public function setAlgorithm(string $algorithm): void
+    {
+        if (! in_array($algorithm, self::AVAILABLE_ALGORITHMS)) {
+            throw new UnexpectedValueException('The algorithm is not valid');
+        }
+        $this->algorithm = $algorithm;
     }
 
     /**
@@ -163,14 +216,26 @@ class DigestHttpAuthMiddleware extends AuthMiddleware
         $a1 = $params['username'] . ':' . $params['realm'] . ':' . $password;
         $a2 = $method . ':' . $params['uri'];
 
-        return md5(implode(':', [
-            md5($a1),
+        return $this->hash(implode(':', [
+            $this->hash($a1),
             $params['nonce'],
             $params['nc'],
             $params['cnonce'],
             $params['qop'],
-            md5($a2)
+            $this->hash($a2)
         ]));
+    }
+
+    /**
+     * Generate a hash value in according to the selected algorithm.
+     *
+     * @param string $data The data to be hashed.
+     * @return string Returns a string containing the calculated
+     *     message digest as lowercase hexadecimal digits.
+     */
+    private function hash(string $data)
+    {
+        return hash($this->getAlgorithm(), $data);
     }
 
     /**
@@ -179,13 +244,20 @@ class DigestHttpAuthMiddleware extends AuthMiddleware
     protected function processError(ServerRequestInterface $request,
                                     RequestHandlerInterface $handler): ResponseInterface
     {
+        $algorithms = [
+            self::ALGORITHM_MD5       => 'MD5',
+            self::ALGORITHM_SHA256    => 'SHA-256',
+            self::ALGORITHM_SHA512256 => 'SHA-512-256'
+        ];
+
         return (new EmptyResponse())
             ->withStatus(401)
             ->withHeader('WWW-Authenticate', sprintf(
-                'Digest realm="%s",qop="auth",nonce="%s",opaque="%s"',
-                $this->realm,
-                $this->nonce ?: uniqid(),
-                md5($this->realm)
+                'Digest realm="%s",qop="auth",algorithm=%s,nonce="%s",opaque="%s"',
+                $this->getRealm(),
+                $algorithms[$this->getAlgorithm()],
+                $this->getNonce(),
+                md5($this->getRealm())
             ));
     }
 }
