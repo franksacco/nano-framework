@@ -6,6 +6,7 @@
  - Authentication and Authorization
  - [Configuration](config.md)
  - Controller
+ - Database
  - [Model (ORM) library](model.md)
  - [Routing library](routing.md)
  - Session management
