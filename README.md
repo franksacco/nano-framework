@@ -7,6 +7,9 @@
 <a href="./LICENSE.md"><img src="https://poser.pugx.org/franksacco/nano-framework/license" alt="License"></a>
 </p>
 
+## \[Archived\]
+Due to lack of time, this project is no longer under development.
+
 ## About
 A simple, light and fast PHP framework based on middlewares.
 
